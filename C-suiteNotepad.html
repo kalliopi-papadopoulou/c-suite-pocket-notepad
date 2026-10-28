@@ -1,0 +1,2137 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Kalliopi Papadopoulou | The C-Suite Pocket Notepad // Finance &amp; Telemetry</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN for BI Telemetry HUDs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- html2canvas CDN for High-Res Visual Card Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <!-- SheetJS (XLSX) CDN for Multi-Tab Excel Workbook Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <!-- Tailwind Custom Studio Configuration -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            navy: {
+              950: '#030712',
+              900: '#060d17',
+              850: '#0a192f',
+              800: '#112240',
+              750: '#172a45',
+              700: '#1d3557',
+              600: '#233554'
+            },
+            gold: {
+              300: '#fef08a',
+              400: '#facc15',
+              500: '#c59b27',
+              600: '#b08920',
+              700: '#854d0e',
+              light: '#fef3c7'
+            }
+          },
+          fontFamily: {
+            cinzel: ['Cinzel', 'Georgia', 'serif'],
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+    html, body {
+      overflow-x: hidden;
+      width: 100%;
+      background-color: #060d17;
+      color: #f1f5f9;
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #060d17; }
+    ::-webkit-scrollbar-thumb { background: #1d3557; border-radius: 4px; border: 1px solid rgba(197, 155, 39, 0.3); }
+    ::-webkit-scrollbar-thumb:hover { background: #c59b27; }
+
+    .glass-nav {
+      background: rgba(6, 13, 23, 0.97);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .glass-card {
+      background: rgba(17, 34, 64, 0.78);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .studio-pill {
+      background: #191712;
+      border: 1px solid rgba(197, 155, 39, 0.45);
+    }
+    .gold-btn {
+      background: linear-gradient(135deg, #facc15 0%, #c59b27 100%);
+      color: #060d17;
+      border: 1px solid #fef08a;
+      box-shadow: 0 4px 20px rgba(197, 155, 39, 0.25);
+    }
+    .gold-btn:hover {
+      background: linear-gradient(135deg, #fef08a 0%, #facc15 100%);
+    }
+    .hud-accent { border-left: 3px solid #c59b27; }
+    .hud-cyan { border-left: 3px solid #06b6d4; }
+    .hud-emerald { border-left: 3px solid #10b981; }
+    .hud-rose { border-left: 3px solid #f43f5e; }
+
+    input[type="number"], select {
+      background: #030712;
+      border: 1px solid #1d3557;
+      color: #f8fafc;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    input[type="number"]:focus, select:focus {
+      outline: none;
+      border-color: #c59b27;
+      box-shadow: 0 0 0 2px rgba(197, 155, 39, 0.25);
+    }
+    .chart-box {
+      position: relative;
+      height: 255px;
+      width: 100%;
+    }
+    .fx-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: #94a3b8;
+      line-height: 1.35;
+    }
+    .stmt-table th, .stmt-table td {
+      padding: 6px 8px;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.45);
+    }
+    .stmt-total {
+      background: rgba(3, 7, 18, 0.65);
+      font-weight: 700;
+      border-top: 1px solid rgba(197, 155, 39, 0.5);
+      border-bottom: 2px double rgba(197, 155, 39, 0.7) !important;
+    }
+
+    /* Boardroom 16:9 Presentation Mode Toggle */
+    body.boardroom-mode .slicer-panel {
+      display: none !important;
+    }
+    body.boardroom-mode .hud-panel {
+      grid-column: span 12 / span 12 !important;
+    }
+
+    /* Dedicated Full-Report Print Architecture (Hides Interactive UI & Retain Footer, Displays Full Dossier) */
+    @media print {
+      @page { size: A4 portrait; margin: 10mm; }
+      html, body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      header, section, nav, main, footer, #retain-section, #toast-banner {
+        display: none !important;
+        height: 0 !important;
+        overflow: hidden !important;
+      }
+      #printable-executive-dossier {
+        display: block !important;
+        position: static !important;
+        width: 100% !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
+      }
+      .print-module-block {
+        page-break-inside: avoid;
+        margin-bottom: 18px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 12px;
+        background: #ffffff;
+      }
+      .print-page-break {
+        page-break-before: always;
+      }
+    }
+  </style>
+</head>
+<body id="top" class="bg-navy-900 text-slate-100 min-h-screen font-sans antialiased relative overflow-x-hidden flex flex-col">
+
+  <!-- Toast Notification Banner -->
+  <div id="toast-banner" class="fixed bottom-5 right-5 z-50 hidden px-4 py-2.5 rounded-lg bg-navy-850 border border-gold-500 text-gold-300 text-xs font-mono shadow-2xl no-print"></div>
+
+  <!-- ==========================================================
+       TOP STUDIO HEADER (KP MONOGRAM + NAME + RETAIN BUTTON)
+       ========================================================== -->
+  <header class="sticky top-0 z-40 glass-nav border-b border-gold-500/30 w-full shadow-xl">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3.5 flex items-center justify-between gap-3">
+      
+      <!-- Left: Monogram Badge & Brand Header -->
+      <a href="https://kalliopi-papadopoulou.github.io/kalliopi-papadopoulou-strategic-studio/" class="flex items-center space-x-2.5 sm:space-x-3.5 group min-w-0 flex-1">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gradient-to-br from-gold-400 via-gold-500 to-amber-600 flex items-center justify-center font-cinzel font-black text-navy-900 text-base sm:text-lg shadow-md shadow-gold-500/20 border border-gold-300 group-hover:scale-105 transition shrink-0">
+          KP
+        </div>
+        <div class="flex flex-col min-w-0 justify-center">
+          <div class="font-cinzel font-black text-xs sm:text-base md:text-lg lg:text-xl text-white tracking-wide sm:tracking-wider uppercase leading-tight">
+            KALLIOPI PAPADOPOULOU
+          </div>
+          <div class="text-[9px] sm:text-xs md:text-sm text-gold-400 font-medium tracking-normal sm:tracking-wide leading-snug mt-0.5">
+            <span>Quantitative Finance</span>
+            <span class="mx-1 text-slate-400 opacity-60">•</span>
+            <span>Commercial Yield</span>
+            <span class="mx-1 text-slate-400 opacity-60">•</span>
+            <span>Operational Telemetry</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Right Action: Retain Button -->
+      <div class="no-print shrink-0">
+        <a href="#retain-section" class="gold-btn px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider inline-flex items-center transition">
+          <span>Retain</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================================
+       EXECUTIVE HERO DESCRIPTION CARD
+       ========================================================== -->
+  <section class="max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 pt-5 pb-2">
+    <div class="glass-card rounded-2xl p-5 md:p-7 border border-gold-500/30 relative overflow-hidden">
+      <div class="absolute -right-20 -top-20 w-72 h-72 bg-gold-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full studio-pill text-gold-400 text-[11px] sm:text-xs tracking-wider uppercase font-mono mb-4">
+        <span class="w-2 h-2 rounded-full bg-gold-400 animate-pulse"></span>
+        <span>THE C-SUITE POCKET NOTEPAD // FINANCE &amp; TELEMETRY</span>
+      </div>
+      <p class="text-slate-300 text-sm sm:text-base leading-relaxed font-light max-w-4xl relative z-10">
+        A C-suite quantitative Pocket Notepad translating live operational telemetry, USALI fundamentals, and capital allocation into immediate margin expansion for financial and technology professionals.
+      </p>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       MULTI-CURRENCY & SHAREHOLDER DISTRIBUTION BAR (BELOW DESCRIPTION)
+       ========================================================== -->
+  <section class="max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-2 no-print">
+    <div class="glass-card rounded-xl px-4 py-3 border border-gold-500/30 flex flex-wrap items-center justify-between gap-3 text-xs">
+      <!-- Left: Base Currency & FX Rates -->
+      <div class="flex flex-wrap items-center gap-2.5">
+        <span class="text-[11px] uppercase tracking-wider text-gold-400 font-semibold mono">
+          FX Telemetry:
+        </span>
+        <div class="flex items-center gap-1.5 bg-navy-950 border border-slate-700/80 rounded-lg px-2.5 py-1">
+          <span class="text-slate-400 mono text-[11px]">Base:</span>
+          <select id="base-currency" onchange="updateDashboard()" class="px-1 py-0.5 rounded text-gold-400 font-bold text-xs bg-transparent border-0">
+            <option value="USD">USD ($)</option>
+            <option value="EUR">EUR (€)</option>
+            <option value="CHF">CHF (Fr.)</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-1.5 bg-navy-950 border border-slate-700/80 rounded-lg px-2.5 py-1" title="1 USD to EUR conversion rate">
+          <span class="text-slate-400 mono text-[11px]">1$ = €</span>
+          <input type="number" id="fx-eur" value="0.92" step="0.01" oninput="updateDashboard()" class="w-14 px-1.5 py-0.5 rounded text-center text-xs">
+        </div>
+        <div class="flex items-center gap-1.5 bg-navy-950 border border-slate-700/80 rounded-lg px-2.5 py-1" title="1 USD to CHF conversion rate">
+          <span class="text-slate-400 mono text-[11px]">1$ = CHF</span>
+          <input type="number" id="fx-chf" value="0.88" step="0.01" oninput="updateDashboard()" class="w-14 px-1.5 py-0.5 rounded text-center text-xs">
+        </div>
+      </div>
+
+      <!-- Right: Shareholder Distribution & Export Suite (No Ornaments) -->
+      <div class="flex flex-wrap items-center gap-1.5">
+        <button onclick="copyShareableScenarioLink()" class="px-2.5 py-1.5 text-[11px] font-semibold bg-navy-800 hover:bg-gold-500 hover:text-navy-900 text-gold-300 rounded-lg border border-gold-500/40 transition mono" title="Copy live encrypted URL with your current numbers">
+          Share Link
+        </button>
+        <button onclick="exportVisualCardPNG()" class="px-2.5 py-1.5 text-[11px] font-semibold bg-navy-800 hover:bg-gold-500 hover:text-navy-900 text-emerald-300 rounded-lg border border-emerald-500/40 transition mono" title="Download high-res PNG snapshot of active HUD">
+          Visual Card (PNG)
+        </button>
+        <button onclick="toggleBoardroomMode()" id="btn-boardroom" class="px-2.5 py-1.5 text-[11px] font-semibold bg-navy-800 hover:bg-gold-500 hover:text-navy-900 text-slate-200 rounded-lg border border-slate-700 transition mono" title="Toggle full-width 16:9 presentation layout">
+          Boardroom View
+        </button>
+        <button onclick="exportExcelWorkbook()" class="px-2.5 py-1.5 text-[11px] font-semibold bg-navy-800 hover:bg-gold-500 hover:text-navy-900 text-cyan-300 rounded-lg border border-cyan-500/40 transition mono" title="Download multi-sheet Excel workbook (.xlsx)">
+          Export XLSX
+        </button>
+        <button onclick="exportPowerBICSV()" class="px-2.5 py-1.5 text-[11px] font-semibold bg-navy-800 hover:bg-navy-700 text-slate-300 rounded-lg border border-slate-700 transition mono">
+          Export CSV
+        </button>
+        <button onclick="printFullExecutiveBrief()" class="px-3 py-1.5 text-[11px] font-bold bg-gold-500 hover:bg-gold-400 text-navy-900 rounded-lg transition mono" title="Print complete 7-Module & 4-Statement Dossier">
+          Print Brief
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7-MODULE BI NAVIGATION TABS -->
+  <nav class="max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-2 flex overflow-x-auto gap-2 no-print">
+    <button onclick="switchTab('capex')" id="tab-capex" class="tab-btn px-3.5 py-2 text-xs font-semibold rounded-lg bg-gold-500 text-navy-900 transition whitespace-nowrap font-cinzel font-bold">
+      1. CAPEX, OPEX &amp; Break-Even CVP (#1, 2, 7)
+    </button>
+    <button onclick="switchTab('labor')" id="tab-labor" class="tab-btn px-3.5 py-2 text-xs font-semibold rounded-lg bg-navy-800 border border-slate-800 text-slate-300 hover:text-white transition whitespace-nowrap">
+      2. Labor, Capacity &amp; Little's Queue (#3, 6)
+    </button>
+    <button onclick="switchTab('inventory')" id="tab-inventory" class="tab-btn px-3.5 py-2 text-xs font-semibold rounded-lg bg-navy-800 border border-slate-800 text-slate-300 hover:text-white transition whitespace-nowrap">
+      3. Inventory, Par &amp; EOQ U-Curve (#4, 5, 8)
+    </button>
+    <button onclick="switchTab('guest')" id="tab-guest" class="tab-btn px-3.5 py-2 text-xs font-semibold rounded-lg bg-navy-800 border border-slate-800 text-slate-300 hover:text-white transition whitespace-nowrap">
+      4. CLV, NPS Radar &amp; CoQ (#9–15)
+    </button>
+    <button onclick="switchTab('finance')" id="tab-finance" class="tab-btn px-3.5 py-2 text-xs font-semibold rounded-lg bg-navy-800 border border-slate-800 text-slate-300 hover:text-white transition whitespace-nowrap">
+      5. USALI Waterfall, GOP &amp; DuPont (#16–26)
+    </button>
+    <button onclick="switchTab('yield')" id="tab-yield" class="tab-btn px-3.5 py-2 text-xs font-semibold rounded-lg bg-navy-800 border border-slate-800 text-slate-300 hover:text-white transition whitespace-nowrap">
+      6. RevPAR, GOPPAR &amp; Yield Matrix (#27–36)
+    </button>
+    <button onclick="switchTab('statements')" id="tab-statements" class="tab-btn px-3.5 py-2 text-xs font-semibold rounded-lg bg-navy-800 border border-gold-500/40 text-gold-300 hover:text-white transition whitespace-nowrap">
+      7. 4 Financial Statements (P&amp;L • BS • CF • Equity)
+    </button>
+  </nav>
+
+  <!-- MAIN BI WORKSPACE -->
+  <main id="active-workspace" class="flex-1 p-3 sm:p-6 max-w-7xl w-full mx-auto space-y-6">
+
+    <!-- ==========================================================
+         MODULE 1: CAPEX, OPEX & BREAK-EVEN CVP (#1, 2, 7)
+         ========================================================== -->
+    <section id="mod-capex" class="module-section grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div class="slicer-panel lg:col-span-4 glass-card rounded-2xl p-5 space-y-3 border-gold-500/20">
+        <div class="border-b border-slate-800 pb-2">
+          <span class="text-[11px] mono text-gold-400 uppercase">Interactive Slicers (<span class="curr-label">USD</span>)</span>
+          <h2 class="text-base font-bold text-white font-cinzel">1. CAPEX, OPEX &amp; CVP Break-Even</h2>
+        </div>
+        <div class="space-y-2.5 text-xs">
+          <div>
+            <label class="block text-slate-400 mb-1">Monthly Gross Revenue</label>
+            <input type="number" id="in-capex-rev" value="850000" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">Maint. CAPEX</label>
+              <input type="number" id="in-capex-maint" value="34000" oninput="updateDashboard()" class="w-full px-2 py-1.5 rounded" title="FF&E Reserve">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Growth CAPEX</label>
+              <input type="number" id="in-capex-growth" value="45000" oninput="updateDashboard()" class="w-full px-2 py-1.5 rounded" title="Property & Renovations">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Tech CAPEX</label>
+              <input type="number" id="in-capex-strat" value="25000" oninput="updateDashboard()" class="w-full px-2 py-1.5 rounded" title="PMS, POS, HVAC, Solar">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">Fixed Monthly OPEX</label>
+              <input type="number" id="in-opex-fixed" value="310000" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Variable CPOR (/Room)</label>
+              <input type="number" id="in-opex-var" value="65" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">Achieved ADR</label>
+              <input type="number" id="in-bep-adr" value="340" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Available Rooms / Mo</label>
+              <input type="number" id="in-bep-avail" value="3000" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-panel lg:col-span-8 space-y-5">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="glass-card hud-accent rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">Total CAPEX (#1)</div>
+            <div id="kpi-capex-tot" class="text-lg font-bold mono text-white mt-0.5">$104,000</div>
+            <div id="fx-capex-tot" class="fx-sub">€95,680 | CHF 91,520</div>
+            <div id="kpi-capex-int" class="text-[10px] text-emerald-400 mt-1">Intensity: 12.2%</div>
+          </div>
+          <div class="glass-card hud-cyan rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">Est. Monthly OPEX (#2)</div>
+            <div id="kpi-opex-tot" class="text-lg font-bold mono text-white mt-0.5">$456,250</div>
+            <div id="fx-opex-tot" class="fx-sub">€419,750 | CHF 401,500</div>
+            <div id="kpi-opex-ratio" class="text-[10px] text-cyan-400 mt-1">OER Ratio: 53.7%</div>
+          </div>
+          <div class="glass-card hud-emerald rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">Contribution / Room</div>
+            <div id="kpi-bep-cm" class="text-lg font-bold mono text-emerald-400 mt-0.5">$275</div>
+            <div id="fx-bep-cm" class="fx-sub">€253 | CHF 242</div>
+            <div class="text-[10px] text-slate-400 mt-1">ADR minus Var CPOR</div>
+          </div>
+          <div class="glass-card hud-rose rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">Break-Even Point (#7)</div>
+            <div id="kpi-bep-occ" class="text-lg font-bold mono text-gold-400 mt-0.5">37.6% (1,127 Rm)</div>
+            <div id="fx-bep-rev" class="fx-sub">BEP Rev: $383,273</div>
+            <div id="kpi-bep-day" class="text-[10px] text-slate-300 mt-1">Reached Day 12</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div class="md:col-span-8 glass-card rounded-2xl p-4 border-gold-500/20">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-gold-400 mono">CVP Break-Even Crosshair (Rev vs Total Cost)</span>
+              <span class="text-[10px] mono text-slate-400">Power BI / Tableau Standard</span>
+            </div>
+            <div class="chart-box"><canvas id="chartCVP"></canvas></div>
+          </div>
+          <div class="md:col-span-4 glass-card rounded-2xl p-4 border-gold-500/20">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-cyan-400 mono">CAPEX Portfolio Split</span>
+            </div>
+            <div class="chart-box"><canvas id="chartCapexPie"></canvas></div>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-4 text-xs space-y-3 border-gold-500/20">
+          <div class="font-bold text-gold-400 mono uppercase">Executive Telemetry Verdict &amp; Departmental Architecture</div>
+          <p id="verdict-capex" class="text-slate-200 leading-relaxed bg-navy-950/80 p-3 rounded-xl border border-slate-800"></p>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="p-2.5 bg-navy-950/60 rounded-xl border border-slate-800">
+              <strong class="text-gold-400 block mb-0.5">Front Desk &amp; Rooms (Tech CAPEX)</strong>
+              Deploy cloud PMS &amp; auxiliary Smart Travel Hub kiosks for VIP cohorts while keeping traditional Front Desk operational for standard guests.
+            </div>
+            <div class="p-2.5 bg-navy-950/60 rounded-xl border border-slate-800">
+              <strong class="text-cyan-400 block mb-0.5">Housekeeping &amp; Property (FF&amp;E)</strong>
+              Protect a 4%–5% Maintenance CAPEX reserve to refresh soft goods on schedule and prevent emergency OPEX repair overruns.
+            </div>
+            <div class="p-2.5 bg-navy-950/60 rounded-xl border border-slate-800">
+              <strong class="text-emerald-400 block mb-0.5">F&amp;B &amp; Infrastructure (HVAC/Solar)</strong>
+              Strategic CAPEX in solar microgrids and smart HVAC load-shedding compresses Fixed OPEX, lowering the Break-Even Occupancy floor.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         MODULE 2: LABOR, CAPACITY & LITTLE'S LAW (#3, 6)
+         ========================================================== -->
+    <section id="mod-labor" class="module-section hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div class="slicer-panel lg:col-span-4 glass-card rounded-2xl p-5 space-y-3 border-gold-500/20">
+        <div class="border-b border-slate-800 pb-2">
+          <span class="text-[11px] mono text-gold-400 uppercase">Interactive Slicers (<span class="curr-label">USD</span>)</span>
+          <h2 class="text-base font-bold text-white font-cinzel">2. Labor, Capacity &amp; Queue Physics</h2>
+        </div>
+        <div class="space-y-2.5 text-xs">
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">Total Payroll Cost</label>
+              <input type="number" id="in-lab-cost" value="245000" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Total Revenue</label>
+              <input type="number" id="in-lab-rev" value="850000" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">Daily Rooms Cleaned</label>
+              <input type="number" id="in-lab-rooms" value="82" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Daily HK Labor Hours</label>
+              <input type="number" id="in-lab-hkhours" value="44" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">F&amp;B Covers Served</label>
+              <input type="number" id="in-lab-covers" value="190" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">F&amp;B Labor Hours</label>
+              <input type="number" id="in-lab-fbhours" value="60" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+          </div>
+          <hr class="border-slate-800">
+          <div class="text-[11px] font-semibold text-gold-400 mono">Little's Law (L = λ × W) — Front Desk vs Smart Hub</div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">Arrival Rate λ (Guests/Hr)</label>
+              <input type="number" id="in-little-lambda" value="45" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Std Desk Time W (Mins)</label>
+              <input type="number" id="in-little-w" value="6" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-panel lg:col-span-8 space-y-5">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="glass-card hud-accent rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">Payroll &amp; Labor % (#3)</div>
+            <div id="kpi-lab-pct" class="text-lg font-bold mono text-white mt-0.5">28.8% ($245k)</div>
+            <div id="fx-lab-cost" class="fx-sub">€225,400 | CHF 215,600</div>
+            <div class="text-[10px] text-emerald-400 mt-1">Target &lt; 32.0%</div>
+          </div>
+          <div class="glass-card hud-cyan rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">HK Productivity (#3)</div>
+            <div id="kpi-lab-hk" class="text-lg font-bold mono text-white mt-0.5">32.2 mins</div>
+            <div class="fx-sub">1.86 Rooms / Lab Hr</div>
+            <div class="text-[10px] text-slate-400 mt-1">Luxury Std: 30–35m</div>
+          </div>
+          <div class="glass-card hud-emerald rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">F&amp;B Productivity (#3)</div>
+            <div id="kpi-lab-fb" class="text-lg font-bold mono text-white mt-0.5">3.17 Covers/Hr</div>
+            <div id="fx-lab-revhr" class="fx-sub">Rev/Lab Hr: $1,932</div>
+            <div class="text-[10px] text-emerald-400 mt-1">Target &gt; 3.00</div>
+          </div>
+          <div class="glass-card hud-rose rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">Lobby Queue Load (#6b)</div>
+            <div id="kpi-little-l" class="text-lg font-bold mono text-gold-400 mt-0.5">4.5 Guests</div>
+            <div class="fx-sub">Formula: L = λ × W</div>
+            <div class="text-[10px] text-cyan-300 mt-1">With Smart Hub: 1.5</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div class="md:col-span-6 glass-card rounded-2xl p-4 border-gold-500/20">
+            <span class="text-xs font-bold uppercase tracking-wider text-gold-400 mono block mb-2">Little's Law Queue Surge (Std Desk vs Auxiliary Smart Hub)</span>
+            <div class="chart-box"><canvas id="chartLittlesLaw"></canvas></div>
+          </div>
+          <div class="md:col-span-6 glass-card rounded-2xl p-4 border-gold-500/20">
+            <span class="text-xs font-bold uppercase tracking-wider text-cyan-400 mono block mb-2">Departmental Efficiency vs Luxury Benchmark</span>
+            <div class="chart-box"><canvas id="chartLaborBar"></canvas></div>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-4 text-xs space-y-2 border-gold-500/20">
+          <div class="font-bold text-gold-400 mono uppercase">Operations &amp; Queue Telemetry Verdict</div>
+          <p id="verdict-labor" class="text-slate-200 leading-relaxed bg-navy-950/80 p-3 rounded-xl border border-slate-800"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         MODULE 3: INVENTORY, PAR & EOQ U-CURVE (#4, 5, 8)
+         ========================================================== -->
+    <section id="mod-inventory" class="module-section hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div class="slicer-panel lg:col-span-4 glass-card rounded-2xl p-5 space-y-3 border-gold-500/20">
+        <div class="border-b border-slate-800 pb-2">
+          <span class="text-[11px] mono text-gold-400 uppercase">Interactive Slicers (<span class="curr-label">USD</span>)</span>
+          <h2 class="text-base font-bold text-white font-cinzel">3. EOQ U-Curve &amp; Par Stock</h2>
+        </div>
+        <div class="space-y-2.5 text-xs">
+          <div>
+            <label class="block text-slate-400 mb-1">Annual Demand Units (D)</label>
+            <input type="number" id="in-eoq-d" value="12000" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">Order Cost (/Order S)</label>
+              <input type="number" id="in-eoq-s" value="45" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Holding Cost (/Unit H)</label>
+              <input type="number" id="in-eoq-h" value="6" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">Monthly COGS</label>
+              <input type="number" id="in-inv-cogs" value="72000" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Avg Inventory Value</label>
+              <input type="number" id="in-inv-avg" value="18000" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">Lead-Time Demand (Units)</label>
+              <input type="number" id="in-inv-lead" value="160" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Safety Stock (Units)</label>
+              <input type="number" id="in-inv-safety" value="80" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-panel lg:col-span-8 space-y-5">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="glass-card hud-accent rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">Optimal EOQ (#5)</div>
+            <div id="kpi-eoq" class="text-lg font-bold mono text-gold-400 mt-0.5">424 Units</div>
+            <div id="fx-eoq-cost" class="fx-sub">Min Cost: $2,546</div>
+            <div class="text-[10px] text-slate-400 mt-1">Optimal Batch Size</div>
+          </div>
+          <div class="glass-card hud-cyan rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">Inventory Turnover (#4)</div>
+            <div id="kpi-inv-turn" class="text-lg font-bold mono text-white mt-0.5">4.0x / Mo</div>
+            <div id="fx-inv-avg" class="fx-sub">Avg Inv: $18,000</div>
+            <div class="text-[10px] text-emerald-400 mt-1">Working Capital Velocity</div>
+          </div>
+          <div class="glass-card hud-emerald rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">Days Inventory (DSI)</div>
+            <div id="kpi-inv-days" class="text-lg font-bold mono text-white mt-0.5">7.5 Days</div>
+            <div id="fx-inv-cogs" class="fx-sub">COGS: $72,000</div>
+            <div class="text-[10px] text-slate-400 mt-1">F&amp;B Spoilage Control</div>
+          </div>
+          <div class="glass-card hud-rose rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">Par Reorder Trigger</div>
+            <div id="kpi-inv-par" class="text-lg font-bold mono text-white mt-0.5">240 Units</div>
+            <div class="fx-sub">Lead + Safety Stock</div>
+            <div class="text-[10px] text-emerald-400 mt-1">Zero-Stockout Buffer</div>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-4 border-gold-500/20">
+          <div class="flex flex-wrap justify-between items-center mb-2 gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-gold-400 mono">Framework #8: Visualizing Inventory Costs (Interactive EOQ U-Curve)</span>
+            <span id="kpi-eoq-cost-banner" class="text-xs mono text-emerald-400"></span>
+          </div>
+          <div class="chart-box"><canvas id="chartEOQ"></canvas></div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-4 text-xs space-y-2 border-gold-500/20">
+          <div class="font-bold text-gold-400 mono uppercase">Supply Chain &amp; Working Capital Verdict</div>
+          <p id="verdict-inventory" class="text-slate-200 leading-relaxed bg-navy-950/80 p-3 rounded-xl border border-slate-800"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         MODULE 4: GUEST ECONOMICS, CLV, NPS & CoQ (#9-15)
+         ========================================================== -->
+    <section id="mod-guest" class="module-section hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div class="slicer-panel lg:col-span-4 glass-card rounded-2xl p-5 space-y-3 border-gold-500/20">
+        <div class="border-b border-slate-800 pb-2">
+          <span class="text-[11px] mono text-gold-400 uppercase">Interactive Slicers (<span class="curr-label">USD</span>)</span>
+          <h2 class="text-base font-bold text-white font-cinzel">4. CLV, NPS Radar &amp; Cost of Quality</h2>
+        </div>
+        <div class="space-y-2.5 text-xs">
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">Spend/Stay</label>
+              <input type="number" id="in-clv-spend" value="1850" oninput="updateDashboard()" class="w-full px-2 py-1.5 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Stays/Yr</label>
+              <input type="number" id="in-clv-freq" value="2.4" step="0.1" oninput="updateDashboard()" class="w-full px-2 py-1.5 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Years</label>
+              <input type="number" id="in-clv-years" value="6" oninput="updateDashboard()" class="w-full px-2 py-1.5 rounded">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">Acquisition Cost (CAC)</label>
+              <input type="number" id="in-clv-cac" value="420" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">GOP Margin (%)</label>
+              <input type="number" id="in-clv-margin" value="38" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">FD NPS (#11)</label>
+              <input type="number" id="in-nps-fd" value="68" oninput="updateDashboard()" class="w-full px-2 py-1.5 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">F&amp;B NPS (#11)</label>
+              <input type="number" id="in-nps-fb" value="61" oninput="updateDashboard()" class="w-full px-2 py-1.5 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">HK NPS (#11)</label>
+              <input type="number" id="in-nps-hk" value="75" oninput="updateDashboard()" class="w-full px-2 py-1.5 rounded">
+            </div>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">Prevention QA</label>
+              <input type="number" id="in-coq-prev" value="14000" oninput="updateDashboard()" class="w-full px-2 py-1.5 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Failure Comps</label>
+              <input type="number" id="in-coq-fail" value="8500" oninput="updateDashboard()" class="w-full px-2 py-1.5 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">VIPs Saved</label>
+              <input type="number" id="in-coq-saved" value="5" oninput="updateDashboard()" class="w-full px-2 py-1.5 rounded">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-panel lg:col-span-8 space-y-5">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="glass-card hud-accent rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">Net Customer CLV (#10)</div>
+            <div id="kpi-clv" class="text-lg font-bold mono text-white mt-0.5">$9,703</div>
+            <div id="fx-clv" class="fx-sub">€8,927 | CHF 8,539</div>
+            <div id="kpi-clv-ratio" class="text-[10px] text-emerald-400 mt-1">CLV:CAC = 23.1x</div>
+          </div>
+          <div class="glass-card hud-cyan rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">Composite NPS (#11)</div>
+            <div id="kpi-nps" class="text-lg font-bold mono text-white mt-0.5">+68.0</div>
+            <div class="fx-sub">FD / F&amp;B / HK Mean</div>
+            <div class="text-[10px] text-emerald-400 mt-1">Luxury Target &gt; +55</div>
+          </div>
+          <div class="glass-card hud-emerald rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">CLV Equity Saved (#14, 15)</div>
+            <div id="kpi-coq-saved" class="text-lg font-bold mono text-emerald-400 mt-0.5">$48,516</div>
+            <div id="fx-coq-saved" class="fx-sub">€44,635 | CHF 42,694</div>
+            <div class="text-[10px] text-slate-400 mt-1">Via Service Recovery</div>
+          </div>
+          <div class="glass-card hud-rose rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">Empowered Comp Ceiling</div>
+            <div id="kpi-coq-comp" class="text-lg font-bold mono text-gold-400 mt-0.5">$970</div>
+            <div id="fx-coq-comp" class="fx-sub">€893 | CHF 854</div>
+            <div class="text-[10px] text-slate-400 mt-1">10% Net CLV Rule</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div class="md:col-span-6 glass-card rounded-2xl p-4 border-gold-500/20">
+            <span class="text-xs font-bold uppercase tracking-wider text-gold-400 mono block mb-2">Departmental NPS &amp; Experience Symmetry Radar</span>
+            <div class="chart-box"><canvas id="chartNPSRadar"></canvas></div>
+          </div>
+          <div class="md:col-span-6 glass-card rounded-2xl p-4 border-gold-500/20">
+            <span class="text-xs font-bold uppercase tracking-wider text-cyan-400 mono block mb-2">Cost of Quality (CoQ) vs Recovered CLV Equity</span>
+            <div class="chart-box"><canvas id="chartCoQBar"></canvas></div>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-4 text-xs space-y-2 border-gold-500/20">
+          <div class="font-bold text-gold-400 mono uppercase">Guest Lifetime Value &amp; Service Recovery Verdict</div>
+          <p id="verdict-guest" class="text-slate-200 leading-relaxed bg-navy-950/80 p-3 rounded-xl border border-slate-800"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         MODULE 5: USALI P&L WATERFALL & DUPONT RATIOS (#16-26)
+         ========================================================== -->
+    <section id="mod-finance" class="module-section hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div class="slicer-panel lg:col-span-4 glass-card rounded-2xl p-5 space-y-3 border-gold-500/20">
+        <div class="border-b border-slate-800 pb-2">
+          <span class="text-[11px] mono text-gold-400 uppercase">Interactive Slicers (<span class="curr-label">USD</span>)</span>
+          <h2 class="text-base font-bold text-white font-cinzel">5. USALI P&amp;L, GOP, ROA &amp; ROE</h2>
+        </div>
+        <div class="space-y-2.5 text-xs">
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">Gross Revenue</label>
+              <input type="number" id="in-fin-rev" value="850000" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Dept. Expenses</label>
+              <input type="number" id="in-fin-dept" value="340000" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">Undistributed Exp</label>
+              <input type="number" id="in-fin-undist" value="175000" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Fixed Charges/Tax</label>
+              <input type="number" id="in-fin-fixed" value="195000" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">Current Assets</label>
+              <input type="number" id="in-fin-ca" value="620000" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Current Liabilities</label>
+              <input type="number" id="in-fin-cl" value="340000" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">Total Property Assets</label>
+              <input type="number" id="in-fin-assets" value="18500000" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Owner Equity</label>
+              <input type="number" id="in-fin-equity" value="9200000" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-panel lg:col-span-8 space-y-5">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="glass-card hud-accent rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">GOP &amp; Margin (#20)</div>
+            <div id="kpi-fin-gop" class="text-lg font-bold mono text-white mt-0.5">$335,000</div>
+            <div id="fx-fin-gop" class="fx-sub">€308,200 | CHF 294,800</div>
+            <div id="kpi-fin-goppct" class="text-[10px] text-emerald-400 mt-1">39.4% GOP Margin</div>
+          </div>
+          <div class="glass-card hud-cyan rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">Net Profit &amp; NPM (#21)</div>
+            <div id="kpi-fin-ni" class="text-lg font-bold mono text-white mt-0.5">$140,000</div>
+            <div id="fx-fin-ni" class="fx-sub">€128,800 | CHF 123,200</div>
+            <div id="kpi-fin-npm" class="text-[10px] text-cyan-400 mt-1">NPM: 16.5%</div>
+          </div>
+          <div class="glass-card hud-emerald rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">Liquidity Current (#19)</div>
+            <div id="kpi-fin-curr" class="text-lg font-bold mono text-white mt-0.5">1.82x</div>
+            <div id="fx-fin-wc" class="fx-sub">Work Cap: $280,000</div>
+            <div class="text-[10px] text-emerald-400 mt-1">Solvent (&gt;1.5x)</div>
+          </div>
+          <div class="glass-card hud-rose rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">Annual ROA / ROE (#22, 23)</div>
+            <div id="kpi-fin-roaroe" class="text-lg font-bold mono text-gold-400 mt-0.5">9.1% / 18.3%</div>
+            <div class="fx-sub">DuPont Asset Yield</div>
+            <div class="text-[10px] text-slate-400 mt-1">Institutional Grade</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div class="md:col-span-7 glass-card rounded-2xl p-4 border-gold-500/20">
+            <span class="text-xs font-bold uppercase tracking-wider text-gold-400 mono block mb-2">USALI Income Statement Waterfall (#16, 20, 24)</span>
+            <div class="chart-box"><canvas id="chartUSALI"></canvas></div>
+          </div>
+          <div class="md:col-span-5 glass-card rounded-2xl p-4 border-gold-500/20">
+            <span class="text-xs font-bold uppercase tracking-wider text-cyan-400 mono block mb-2">DuPont Return &amp; Margin Matrix (%)</span>
+            <div class="chart-box"><canvas id="chartDuPont"></canvas></div>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-4 text-xs space-y-2 border-gold-500/20">
+          <div class="font-bold text-gold-400 mono uppercase">USALI Financial &amp; Institutional Solvency Verdict</div>
+          <p id="verdict-finance" class="text-slate-200 leading-relaxed bg-navy-950/80 p-3 rounded-xl border border-slate-800"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         MODULE 6: REVENUE & YIELD COMMAND CENTER (#27-36)
+         ========================================================== -->
+    <section id="mod-yield" class="module-section hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div class="slicer-panel lg:col-span-4 glass-card rounded-2xl p-5 space-y-3 border-gold-500/20">
+        <div class="border-b border-slate-800 pb-2">
+          <span class="text-[11px] mono text-gold-400 uppercase">Interactive Slicers (<span class="curr-label">USD</span>)</span>
+          <h2 class="text-base font-bold text-white font-cinzel">6. RevPAR, TRevPAR, GOPPAR &amp; Yield</h2>
+        </div>
+        <div class="space-y-2.5 text-xs">
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">Available Rooms</label>
+              <input type="number" id="in-rev-avail" value="3000" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Rooms Sold</label>
+              <input type="number" id="in-rev-sold" value="2340" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">Rooms Revenue</label>
+              <input type="number" id="in-rev-roomrev" value="795600" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Ancillary F&amp;B/Spa</label>
+              <input type="number" id="in-rev-anc" value="314400" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">Total Property GOP</label>
+              <input type="number" id="in-rev-gop" value="435000" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Potential Avg Rack</label>
+              <input type="number" id="in-rev-rack" value="410" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+            </div>
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">STR Comp Set RevPAR</label>
+            <input type="number" id="in-rev-comp" value="245" oninput="updateDashboard()" class="w-full px-3 py-1.5 rounded">
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-panel lg:col-span-8 space-y-5">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="glass-card hud-accent rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">Occupancy &amp; ADR (#29, 30)</div>
+            <div id="kpi-rev-occadr" class="text-lg font-bold mono text-white mt-0.5">78.0% | $340</div>
+            <div id="fx-rev-adr" class="fx-sub">ADR: €313 | CHF 299</div>
+            <div class="text-[10px] text-slate-400 mt-1">Rate vs Volume</div>
+          </div>
+          <div class="glass-card hud-cyan rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">RevPAR &amp; RGI (#28, 34)</div>
+            <div id="kpi-rev-revpar" class="text-lg font-bold mono text-white mt-0.5">$265.20</div>
+            <div id="fx-rev-revpar" class="fx-sub">€244.0 | CHF 233.4</div>
+            <div id="kpi-rev-rgi" class="text-[10px] text-emerald-400 mt-1">RGI Index: 108.2</div>
+          </div>
+          <div class="glass-card hud-emerald rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">TRevPAR &amp; GOPPAR (#31, 32)</div>
+            <div id="kpi-rev-trevgop" class="text-lg font-bold mono text-emerald-400 mt-0.5">$370 / $145</div>
+            <div id="fx-rev-goppar" class="fx-sub">GOPPAR: €133 | CHF 128</div>
+            <div class="text-[10px] text-slate-400 mt-1">Full Wallet Flow-Through</div>
+          </div>
+          <div class="glass-card hud-rose rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">Yield Efficiency (#35, 36)</div>
+            <div id="kpi-rev-yield" class="text-lg font-bold mono text-gold-400 mt-0.5">64.7%</div>
+            <div id="fx-rev-rack" class="fx-sub">Rack: $410 (€377/CHF 361)</div>
+            <div class="text-[10px] text-slate-400 mt-1">vs Potential Rack</div>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-4 border-gold-500/20">
+          <span class="text-xs font-bold uppercase tracking-wider text-gold-400 mono block mb-2">STR Per-Available-Room Hierarchy (Rack vs ADR vs RevPAR vs TRevPAR vs GOPPAR)</span>
+          <div class="chart-box"><canvas id="chartYieldCombo"></canvas></div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-4 text-xs space-y-2 border-gold-500/20">
+          <div class="font-bold text-gold-400 mono uppercase">Revenue Management &amp; Yield Command Verdict</div>
+          <p id="verdict-yield" class="text-slate-200 leading-relaxed bg-navy-950/80 p-3 rounded-xl border border-slate-800"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         MODULE 7: 4 INSTITUTIONAL FINANCIAL STATEMENTS
+         (Income Statement • Balance Sheet • Cash Flow • Shareholders' Equity)
+         ========================================================== -->
+    <section id="mod-statements" class="module-section hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div class="slicer-panel lg:col-span-4 glass-card rounded-2xl p-5 space-y-3 border-gold-500/30">
+        <div class="border-b border-slate-800 pb-2">
+          <span class="text-[11px] mono text-gold-400 uppercase">General Ledger Drivers (<span class="curr-label">USD</span>)</span>
+          <h2 class="text-base font-bold text-white font-cinzel">7. Institutional 4-Statement Engine</h2>
+        </div>
+
+        <div class="space-y-2.5 text-xs">
+          <div class="text-[10px] font-mono uppercase text-gold-400 font-semibold">1. Income Statement (USALI Annual/Period)</div>
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">Rooms Rev</label>
+              <input type="number" id="in-st-roomrev" value="9500000" oninput="updateDashboard()" class="w-full px-2 py-1 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">F&amp;B Rev</label>
+              <input type="number" id="in-st-fbrev" value="3800000" oninput="updateDashboard()" class="w-full px-2 py-1 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Spa/Other</label>
+              <input type="number" id="in-st-othrev" value="1200000" oninput="updateDashboard()" class="w-full px-2 py-1 rounded">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">Total Dept. Expenses</label>
+              <input type="number" id="in-st-dept" value="5400000" oninput="updateDashboard()" class="w-full px-2 py-1 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Undistributed OpEx</label>
+              <input type="number" id="in-st-undist" value="2900000" oninput="updateDashboard()" class="w-full px-2 py-1 rounded">
+            </div>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">Mgt/Insur/Tax</label>
+              <input type="number" id="in-st-mgt" value="1150000" oninput="updateDashboard()" class="w-full px-2 py-1 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Depr &amp; Amort</label>
+              <input type="number" id="in-st-da" value="1400000" oninput="updateDashboard()" class="w-full px-2 py-1 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Interest + Tax</label>
+              <input type="number" id="in-st-inttax" value="1250000" oninput="updateDashboard()" class="w-full px-2 py-1 rounded">
+            </div>
+          </div>
+
+          <hr class="border-slate-800">
+          <div class="text-[10px] font-mono uppercase text-cyan-400 font-semibold">2. Balance Sheet &amp; Working Capital</div>
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">Beg. Cash</label>
+              <input type="number" id="in-st-begcash" value="1800000" oninput="updateDashboard()" class="w-full px-2 py-1 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">A/R + Inv</label>
+              <input type="number" id="in-st-arinv" value="1450000" oninput="updateDashboard()" class="w-full px-2 py-1 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Net PP&amp;E</label>
+              <input type="number" id="in-st-ppe" value="34000000" oninput="updateDashboard()" class="w-full px-2 py-1 rounded">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">Current Liabilities</label>
+              <input type="number" id="in-st-cl" value="2100000" oninput="updateDashboard()" class="w-full px-2 py-1 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Long-Term Debt</label>
+              <input type="number" id="in-st-ltdebt" value="18500000" oninput="updateDashboard()" class="w-full px-2 py-1 rounded">
+            </div>
+          </div>
+
+          <hr class="border-slate-800">
+          <div class="text-[10px] font-mono uppercase text-emerald-400 font-semibold">3. Cash Flow &amp; Shareholders' Equity</div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">WC Change (ΔWC)</label>
+              <input type="number" id="in-st-dwc" value="-150000" oninput="updateDashboard()" class="w-full px-2 py-1 rounded" title="Negative = cash inflow; Positive = cash absorbed">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">CAPEX Outflow (-)</label>
+              <input type="number" id="in-st-capex" value="1650000" oninput="updateDashboard()" class="w-full px-2 py-1 rounded">
+            </div>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="block text-slate-400 mb-1">Debt Issued/(Pd)</label>
+              <input type="number" id="in-st-debtcf" value="-400000" oninput="updateDashboard()" class="w-full px-2 py-1 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">New Equity In</label>
+              <input type="number" id="in-st-eqiss" value="250000" oninput="updateDashboard()" class="w-full px-2 py-1 rounded">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Dividends Paid</label>
+              <input type="number" id="in-st-div" value="800000" oninput="updateDashboard()" class="w-full px-2 py-1 rounded">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-panel lg:col-span-8 space-y-5">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="glass-card hud-accent rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">1. Net Income (P&amp;L)</div>
+            <div id="kpi-st-ni" class="text-lg font-bold mono text-white mt-0.5">$2,400,000</div>
+            <div id="fx-st-ni" class="fx-sub">€2,208,000 | CHF 2,112,000</div>
+            <div id="kpi-st-ebitda" class="text-[10px] text-emerald-400 mt-1">EBITDA: $5,050,000</div>
+          </div>
+          <div class="glass-card hud-cyan rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">2. Total Assets (BS)</div>
+            <div id="kpi-st-assets" class="text-lg font-bold mono text-white mt-0.5">$38,600,000</div>
+            <div id="fx-st-assets" class="fx-sub">€35,512,000 | CHF 33,968,000</div>
+            <div class="text-[10px] text-cyan-400 mt-1">Reconciled (A = L + E)</div>
+          </div>
+          <div class="glass-card hud-emerald rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">3. Free Cash Flow (FCF)</div>
+            <div id="kpi-st-fcf" class="text-lg font-bold mono text-emerald-400 mt-0.5">$2,300,000</div>
+            <div id="fx-st-fcf" class="fx-sub">€2,116,000 | CHF 2,024,000</div>
+            <div id="kpi-st-endcash" class="text-[10px] text-slate-300 mt-1">End Cash: $3,150,000</div>
+          </div>
+          <div class="glass-card hud-rose rounded-xl p-3.5">
+            <div class="text-[11px] text-slate-400">4. Shareholders' Equity</div>
+            <div id="kpi-st-eq" class="text-lg font-bold mono text-gold-400 mt-0.5">$18,000,000</div>
+            <div id="fx-st-eq" class="fx-sub">€16,560,000 | CHF 15,840,000</div>
+            <div id="kpi-st-dte" class="text-[10px] text-slate-300 mt-1">Debt-to-Equity: 1.14x</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          <!-- STATEMENT 1: INCOME STATEMENT (USALI P&L) -->
+          <div class="glass-card rounded-2xl p-4 border-gold-500/30">
+            <div class="flex justify-between items-center pb-2 mb-2 border-b border-slate-800">
+              <span class="font-cinzel font-bold text-gold-400 text-sm">I. Income Statement (USALI P&amp;L)</span>
+              <span class="text-[10px] mono text-slate-400">USD / EUR / CHF</span>
+            </div>
+            <table class="w-full stmt-table mono text-[11px]">
+              <tbody id="tbody-income"></tbody>
+            </table>
+          </div>
+
+          <!-- STATEMENT 2: BALANCE SHEET -->
+          <div class="glass-card rounded-2xl p-4 border-gold-500/30">
+            <div class="flex justify-between items-center pb-2 mb-2 border-b border-slate-800">
+              <span class="font-cinzel font-bold text-cyan-400 text-sm">II. Balance Sheet (A = L + E)</span>
+              <span class="text-[10px] mono text-emerald-400">Reconciled</span>
+            </div>
+            <table class="w-full stmt-table mono text-[11px]">
+              <tbody id="tbody-balance"></tbody>
+            </table>
+          </div>
+
+          <!-- STATEMENT 3: CASH FLOW STATEMENT -->
+          <div class="glass-card rounded-2xl p-4 border-gold-500/30">
+            <div class="flex justify-between items-center pb-2 mb-2 border-b border-slate-800">
+              <span class="font-cinzel font-bold text-emerald-400 text-sm">III. Cash Flow Statement (Indirect)</span>
+              <span class="text-[10px] mono text-slate-400">OCF • ICF • FCF</span>
+            </div>
+            <table class="w-full stmt-table mono text-[11px]">
+              <tbody id="tbody-cashflow"></tbody>
+            </table>
+          </div>
+
+          <!-- STATEMENT 4: STATEMENT OF SHAREHOLDERS' EQUITY -->
+          <div class="glass-card rounded-2xl p-4 border-gold-500/30">
+            <div class="flex justify-between items-center pb-2 mb-2 border-b border-slate-800">
+              <span class="font-cinzel font-bold text-rose-400 text-sm">IV. Statement of Shareholders' Equity</span>
+              <span class="text-[10px] mono text-slate-400">Capital &amp; Retained</span>
+            </div>
+            <table class="w-full stmt-table mono text-[11px]">
+              <tbody id="tbody-equity"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div class="md:col-span-6 glass-card rounded-2xl p-4 border-gold-500/20">
+            <span class="text-xs font-bold uppercase tracking-wider text-gold-400 mono block mb-2">Balance Sheet Structure (Assets vs Liabilities &amp; Equity)</span>
+            <div class="chart-box"><canvas id="chartBS"></canvas></div>
+          </div>
+          <div class="md:col-span-6 glass-card rounded-2xl p-4 border-gold-500/20">
+            <span class="text-xs font-bold uppercase tracking-wider text-cyan-400 mono block mb-2">Cash Flow Bridge (Operating, Investing, Financing &amp; FCF)</span>
+            <div class="chart-box"><canvas id="chartCF"></canvas></div>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-4 text-xs space-y-2 border-gold-500/20">
+          <div class="font-bold text-gold-400 mono uppercase">Three-Statement &amp; Equity Reconciliation Verdict</div>
+          <p id="verdict-statements" class="text-slate-200 leading-relaxed bg-navy-950/80 p-3 rounded-xl border border-slate-800"></p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==========================================================
+       RETAIN KALLIOPI PAPADOPOULOU & GOOGLE CALENDAR FOOTER
+       (Strictly excluded from Print Brief)
+       ========================================================== -->
+  <footer id="retain-section" class="no-print border-t border-gold-500/30 bg-navy-950 text-slate-300 mt-16 pt-12 pb-10 w-full">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+
+      <!-- Top Section Header -->
+      <div class="text-center space-y-3">
+        <div class="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full studio-pill text-gold-400 text-xs font-mono uppercase tracking-wider">
+          <span>Strategic Transformation &amp; Boardroom Governance</span>
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white font-cinzel">Retain Kalliopi Papadopoulou</h2>
+        <p class="text-slate-300 text-sm sm:text-base leading-relaxed font-light max-w-2xl mx-auto">
+          Schedule a confidential C-suite transformation briefing, Smart Travel Hub architecture sprint, or boardroom advisory consultation directly via Google Calendar.
+        </p>
+      </div>
+
+      <!-- Centered Single-Action Google Calendar Appointment Hub -->
+      <div class="glass-card p-6 sm:p-10 rounded-2xl border border-gold-500/40 space-y-6 shadow-2xl text-center">
+        <div class="w-14 h-14 mx-auto rounded-full bg-gold-500/10 border border-gold-500/40 flex items-center justify-center text-gold-400 text-xs font-cinzel font-bold tracking-widest">
+          CAL
+        </div>
+
+        <div class="space-y-1">
+          <span class="text-xs font-mono font-semibold uppercase tracking-wider text-gold-400">Direct Executive Access</span>
+          <h3 class="text-xl sm:text-2xl font-bold text-white font-cinzel">Google Calendar Appointment Portal</h3>
+          <p class="text-xs sm:text-sm text-slate-400">30 or 45-Minute Boardroom Scoping &amp; Strategic Advisory Session</p>
+        </div>
+
+        <!-- Official Google Calendar Appointment URL -->
+        <div class="pt-2">
+          <a href="https://calendar.google.com/calendar/appointments/schedules/AcZssZ2uiNR5ecqv24anAyZ3ISFoebqW7E7VPFRrJPW_VGWwg6qeIUeyFxFt4TaUu1V-XAp67crWhvXm?gv=true" target="_blank" rel="noopener noreferrer" class="gold-btn inline-flex items-center justify-center px-8 py-4 font-bold text-xs sm:text-sm uppercase tracking-wider rounded-xl transition">
+            <span>Book Advisory Session (Google Calendar)</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Bottom Single Clean Legal & Integrity Strip -->
+      <div class="pt-8 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs font-mono text-slate-400">
+        <p>© 2026 Kalliopi Papadopoulou. Strategic Transformation Studio &amp; Advisory Command. All rights reserved.</p>
+        <div class="flex items-center space-x-4 text-gold-400/80">
+          <span>Movement. Always Forward.</span>
+          <span>•</span>
+          <a href="#top" class="hover:text-gold-300 underline">Back to Top</a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- ==========================================================
+       DEDICATED FULL-PRESENTATION PRINT DOSSIER CONTAINER
+       (Populated dynamically with all 7 Modules, Inputs, KPIs,
+        High-Res Chart Images & 4 Financial Statements on Print)
+       ========================================================== -->
+  <div id="printable-executive-dossier" class="hidden font-sans"></div>
+
+  <script>
+    let charts = {};
+    let activeTab = 'capex';
+
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.font.family = "'JetBrains Mono', monospace";
+    Chart.defaults.font.size = 10;
+
+    function showNotice(msg) {
+      const el = document.getElementById('toast-banner');
+      el.innerText = msg;
+      el.classList.remove('hidden');
+      setTimeout(() => el.classList.add('hidden'), 3200);
+    }
+
+    function switchTab(mod) {
+      activeTab = mod;
+      document.querySelectorAll('.module-section').forEach(el => el.classList.add('hidden'));
+      document.getElementById('mod-' + mod).classList.remove('hidden');
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-gold-500', 'text-navy-900', 'font-cinzel', 'font-bold');
+        btn.classList.add('bg-navy-800', 'border', 'border-slate-800', 'text-slate-300');
+      });
+      const activeBtn = document.getElementById('tab-' + mod);
+      activeBtn.classList.add('bg-gold-500', 'text-navy-900', 'font-cinzel', 'font-bold');
+      activeBtn.classList.remove('bg-navy-800', 'border', 'border-slate-800', 'text-slate-300');
+      updateDashboard();
+    }
+
+    function v(id) { return parseFloat(document.getElementById(id).value) || 0; }
+
+    // Multi-Currency Tri-Conversion Engine (USD $, EUR €, CHF)
+    function getFX(amountInBase, decimals = 0) {
+      const base = document.getElementById('base-currency').value;
+      const rateEUR = parseFloat(document.getElementById('fx-eur').value) || 0.92;
+      const rateCHF = parseFloat(document.getElementById('fx-chf').value) || 0.88;
+
+      let usd = amountInBase;
+      if (base === 'EUR') usd = amountInBase / rateEUR;
+      if (base === 'CHF') usd = amountInBase / rateCHF;
+
+      const eur = usd * rateEUR;
+      const chf = usd * rateCHF;
+
+      const f = (n) => n.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+      const sUSD = '$' + f(usd);
+      const sEUR = '€' + f(eur);
+      const sCHF = 'CHF ' + f(chf);
+
+      if (base === 'USD') return { primary: sUSD, sub: `${sEUR} | ${sCHF}`, all: `${sUSD} (${sEUR} | ${sCHF})`, usd, eur, chf };
+      if (base === 'EUR') return { primary: sEUR, sub: `${sUSD} | ${sCHF}`, all: `${sEUR} (${sUSD} | ${sCHF})`, usd, eur, chf };
+      return { primary: sCHF, sub: `${sUSD} | ${sEUR}`, all: `${sCHF} (${sUSD} | ${sEUR})`, usd, eur, chf };
+    }
+
+    function stmtRow(label, amount, pctText = '', isTotal = false) {
+      const fx = getFX(amount, 0);
+      return `<tr class="${isTotal ? 'stmt-total text-white' : 'text-slate-300'}">
+        <td class="text-left">${label}</td>
+        <td class="text-right">
+          <div class="${isTotal ? 'text-gold-400 font-bold' : 'text-white'}">${fx.primary}</div>
+          <div class="text-[9px] text-slate-400">${fx.sub}</div>
+        </td>
+        <td class="text-right text-[10px] text-emerald-400 w-14">${pctText}</td>
+      </tr>`;
+    }
+
+    function initCharts() {
+      charts.cvp = new Chart(document.getElementById('chartCVP'), {
+        type: 'line',
+        data: {
+          labels: ['0%', '20%', '40%', '60%', '80%', '100%'],
+          datasets: [
+            { label: 'Total Revenue', data: [], borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', borderWidth: 2.5, tension: 0.1 },
+            { label: 'Total Cost (Fixed + Var)', data: [], borderColor: '#f43f5e', backgroundColor: 'rgba(244,63,94,0.1)', borderWidth: 2.5, tension: 0.1 },
+            { label: 'Fixed OPEX Floor', data: [], borderColor: '#64748b', borderDash: [5, 5], borderWidth: 1.5, pointRadius: 0 }
+          ]
+        },
+        options: { animation: false, responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+      });
+
+      charts.capexPie = new Chart(document.getElementById('chartCapexPie'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Maint. (FF&E)', 'Growth', 'Strategic Tech'],
+          datasets: [{ data: [34000, 45000, 25000], backgroundColor: ['#3b82f6', '#c59b27', '#10b981'], borderWidth: 0 }]
+        },
+        options: { animation: false, responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+      });
+
+      charts.littles = new Chart(document.getElementById('chartLittlesLaw'), {
+        type: 'line',
+        data: {
+          labels: ['15/hr', '30/hr', '45/hr', '60/hr', '75/hr', '90/hr'],
+          datasets: [
+            { label: 'Standard Desk Queue (L)', data: [], borderColor: '#f43f5e', borderWidth: 2.5, tension: 0.3 },
+            { label: 'With Auxiliary Smart Hub (W=2m)', data: [], borderColor: '#06b6d4', borderWidth: 2.5, borderDash: [4, 4], tension: 0.3 }
+          ]
+        },
+        options: { animation: false, responsive: true, maintainAspectRatio: false }
+      });
+
+      charts.laborBar = new Chart(document.getElementById('chartLaborBar'), {
+        type: 'bar',
+        data: {
+          labels: ['Labor Cost %', 'HK Mins/Room', 'F&B Covers/Hr x10'],
+          datasets: [
+            { label: 'Actual Performance', data: [], backgroundColor: '#c59b27' },
+            { label: 'Luxury Benchmark', data: [30, 32, 30], backgroundColor: '#1d3557' }
+          ]
+        },
+        options: { animation: false, responsive: true, maintainAspectRatio: false }
+      });
+
+      charts.eoq = new Chart(document.getElementById('chartEOQ'), {
+        type: 'line',
+        data: {
+          labels: ['100', '200', '300', '424 (EOQ)', '600', '800', '1000'],
+          datasets: [
+            { label: 'Total Logistics Cost (U-Curve)', data: [], borderColor: '#c59b27', borderWidth: 3, tension: 0.35 },
+            { label: 'Holding Cost (H)', data: [], borderColor: '#06b6d4', borderDash: [4, 4], borderWidth: 1.8, tension: 0.1 },
+            { label: 'Ordering Cost (S)', data: [], borderColor: '#10b981', borderDash: [4, 4], borderWidth: 1.8, tension: 0.35 }
+          ]
+        },
+        options: { animation: false, responsive: true, maintainAspectRatio: false }
+      });
+
+      charts.npsRadar = new Chart(document.getElementById('chartNPSRadar'), {
+        type: 'radar',
+        data: {
+          labels: ['Front Desk NPS', 'F&B NPS', 'Housekeeping NPS', 'Experience ROI', 'VIP Retention'],
+          datasets: [
+            { label: 'Property Score', data: [], backgroundColor: 'rgba(197, 155, 39, 0.25)', borderColor: '#c59b27', pointBackgroundColor: '#c59b27' },
+            { label: 'Luxury Comp Target', data: [60, 60, 65, 70, 75], backgroundColor: 'rgba(6, 182, 212, 0.1)', borderColor: '#06b6d4', borderDash: [3, 3] }
+          ]
+        },
+        options: { animation: false, responsive: true, maintainAspectRatio: false, scales: { r: { grid: { color: '#1e293b' }, angleLines: { color: '#1e293b' }, suggestedMin: 0, suggestedMax: 100 } } }
+      });
+
+      charts.coqBar = new Chart(document.getElementById('chartCoQBar'), {
+        type: 'bar',
+        data: {
+          labels: ['Prevention QA', 'Failure Comps', 'Saved CLV Equity'],
+          datasets: [{ label: 'Quality Financial Impact', data: [], backgroundColor: ['#06b6d4', '#f43f5e', '#10b981'] }]
+        },
+        options: { animation: false, responsive: true, maintainAspectRatio: false }
+      });
+
+      charts.usali = new Chart(document.getElementById('chartUSALI'), {
+        type: 'bar',
+        data: {
+          labels: ['Gross Rev', 'Dept Exp', 'Undist Exp', 'GOP (#20)', 'Fixed Charges', 'Net Income (#21)'],
+          datasets: [{ label: 'USALI P&L Flow', data: [], backgroundColor: ['#3b82f6', '#f43f5e', '#fb7185', '#c59b27', '#94a3b8', '#10b981'] }]
+        },
+        options: { animation: false, responsive: true, maintainAspectRatio: false }
+      });
+
+      charts.dupont = new Chart(document.getElementById('chartDuPont'), {
+        type: 'bar',
+        data: {
+          labels: ['GOP Margin %', 'Net Margin %', 'Annual ROA %', 'Annual ROE %'],
+          datasets: [{ label: 'Return Ratios (%)', data: [], backgroundColor: ['#c59b27', '#06b6d4', '#10b981', '#a855f7'] }]
+        },
+        options: { animation: false, indexAxis: 'y', responsive: true, maintainAspectRatio: false }
+      });
+
+      charts.yieldCombo = new Chart(document.getElementById('chartYieldCombo'), {
+        type: 'bar',
+        data: {
+          labels: ['Potential Rack (#35)', 'Achieved ADR (#29)', 'RevPAR (#28)', 'Comp Set RevPAR', 'TRevPAR (#31)', 'GOPPAR (#32)'],
+          datasets: [{
+            label: 'Rate / Revenue per Room',
+            data: [],
+            backgroundColor: ['#475569', '#3b82f6', '#06b6d4', '#64748b', '#c59b27', '#10b981']
+          }]
+        },
+        options: { animation: false, responsive: true, maintainAspectRatio: false }
+      });
+
+      charts.bs = new Chart(document.getElementById('chartBS'), {
+        type: 'bar',
+        data: {
+          labels: ['Current Assets', 'Net PP&E', 'Current Liab.', 'Long-Term Debt', 'Shareholders Equity'],
+          datasets: [{
+            label: 'Balance Sheet Components',
+            data: [],
+            backgroundColor: ['#06b6d4', '#3b82f6', '#f43f5e', '#fb7185', '#c59b27']
+          }]
+        },
+        options: { animation: false, responsive: true, maintainAspectRatio: false }
+      });
+
+      charts.cf = new Chart(document.getElementById('chartCF'), {
+        type: 'bar',
+        data: {
+          labels: ['Operating CF', 'Investing CF (CAPEX)', 'Financing CF', 'Free Cash Flow (FCF)', 'Ending Cash'],
+          datasets: [{
+            label: 'Cash Flow Movement',
+            data: [],
+            backgroundColor: ['#10b981', '#f43f5e', '#a855f7', '#c59b27', '#06b6d4']
+          }]
+        },
+        options: { animation: false, responsive: true, maintainAspectRatio: false }
+      });
+    }
+
+    function updateDashboard() {
+      const baseCurr = document.getElementById('base-currency').value;
+      document.querySelectorAll('.curr-label').forEach(el => el.innerText = baseCurr);
+
+      // --- MODULE 1: CAPEX, OPEX & CVP ---
+      const rev = v('in-capex-rev') || 1;
+      const cMaint = v('in-capex-maint'), cGrowth = v('in-capex-growth'), cStrat = v('in-capex-strat');
+      const cTotal = cMaint + cGrowth + cStrat;
+      const oFixed = v('in-opex-fixed'), oVar = v('in-opex-var');
+      const adr = v('in-bep-adr') || 1, avail = v('in-bep-avail') || 1;
+
+      const contrib = Math.max(1, adr - oVar);
+      const bepRooms = oFixed / contrib;
+      const bepOcc = (bepRooms / avail) * 100;
+      const bepRev = bepRooms * adr;
+      const estOpex = oFixed + (oVar * avail * 0.75);
+      const opexRatio = (estOpex / rev) * 100;
+
+      const fxCapex = getFX(cTotal);
+      const fxOpex = getFX(estOpex);
+      const fxCm = getFX(contrib);
+      const fxBepRev = getFX(bepRev);
+
+      document.getElementById('kpi-capex-tot').innerText = fxCapex.primary;
+      document.getElementById('fx-capex-tot').innerText = fxCapex.sub;
+      document.getElementById('kpi-capex-int').innerText = `Intensity: ${((cTotal / rev) * 100).toFixed(1)}%`;
+
+      document.getElementById('kpi-opex-tot').innerText = fxOpex.primary;
+      document.getElementById('fx-opex-tot').innerText = fxOpex.sub;
+      document.getElementById('kpi-opex-ratio').innerText = `OER Ratio: ${opexRatio.toFixed(1)}%`;
+
+      document.getElementById('kpi-bep-cm').innerText = fxCm.primary;
+      document.getElementById('fx-bep-cm').innerText = fxCm.sub;
+
+      document.getElementById('kpi-bep-occ').innerText = `${bepOcc.toFixed(1)}% (${Math.ceil(bepRooms)} Rm)`;
+      document.getElementById('fx-bep-rev').innerText = `BEP: ${fxBepRev.all}`;
+      document.getElementById('kpi-bep-day').innerText = 'Reached Day ' + Math.min(30, Math.ceil((bepOcc / 100) * 30));
+
+      const occSteps = [0, 0.2, 0.4, 0.6, 0.8, 1.0];
+      charts.cvp.data.datasets[0].data = occSteps.map(p => Math.round(p * avail * adr));
+      charts.cvp.data.datasets[1].data = occSteps.map(p => Math.round(oFixed + (p * avail * oVar)));
+      charts.cvp.data.datasets[2].data = occSteps.map(() => oFixed);
+      charts.cvp.update();
+
+      charts.capexPie.data.datasets[0].data = [cMaint, cGrowth, cStrat];
+      charts.capexPie.update();
+
+      document.getElementById('verdict-capex').innerHTML = `<strong>CVP Multi-Currency Synthesis:</strong> Break-Even occurs at <strong>${bepOcc.toFixed(1)}% occupancy (${Math.ceil(bepRooms)} rooms)</strong>, requiring <strong>${fxBepRev.all}</strong> in monthly top-line revenue. Each occupied room beyond this threshold contributes <strong>${fxCm.all}</strong> toward net operating profit.`;
+
+      // --- MODULE 2: LABOR & LITTLE'S LAW ---
+      const lCost = v('in-lab-cost'), lRev = v('in-lab-rev') || 1;
+      const lRooms = v('in-lab-rooms') || 1, hkHours = v('in-lab-hkhours');
+      const covers = v('in-lab-covers'), fbHours = v('in-lab-fbhours') || 1;
+      const lambda = v('in-little-lambda'), wMin = v('in-little-w');
+
+      const labPct = (lCost / lRev) * 100;
+      const hkMpr = (hkHours * 60) / lRooms;
+      const fbIdx = covers / fbHours;
+      const littleL = lambda * (wMin / 60);
+      const fxLab = getFX(lCost);
+      const fxRevHr = getFX(lRev / Math.max(1, (hkHours + fbHours) * 30));
+
+      document.getElementById('kpi-lab-pct').innerText = `${labPct.toFixed(1)}% (${fxLab.primary})`;
+      document.getElementById('fx-lab-cost').innerText = fxLab.sub;
+      document.getElementById('kpi-lab-hk').innerText = hkMpr.toFixed(1) + ' mins';
+      document.getElementById('kpi-lab-fb').innerText = fbIdx.toFixed(2) + ' Covers/Hr';
+      document.getElementById('fx-lab-revhr').innerText = `Rev/Hr: ${fxRevHr.all}`;
+      document.getElementById('kpi-little-l').innerText = littleL.toFixed(1) + ' Guests';
+
+      const arrivalRates = [15, 30, 45, 60, 75, 90];
+      charts.littles.data.datasets[0].data = arrivalRates.map(a => +(a * (wMin / 60)).toFixed(1));
+      charts.littles.data.datasets[1].data = arrivalRates.map(a => +(a * (2.0 / 60)).toFixed(1));
+      charts.littles.update();
+
+      charts.laborBar.data.datasets[0].data = [+labPct.toFixed(1), +hkMpr.toFixed(1), +(fbIdx * 10).toFixed(1)];
+      charts.laborBar.update();
+
+      document.getElementById('verdict-labor').innerHTML = `<strong>Queue &amp; Labor Telemetry:</strong> Total payroll is <strong>${fxLab.all} (${labPct.toFixed(1)}%)</strong>. At arrival rate <strong>λ = ${lambda} guests/hr</strong> and check-in service duration <strong>W = ${wMin} mins</strong>, Little's Law (L = λ × W) predicts <strong>${littleL.toFixed(1)} guests</strong> queuing in the lobby. Keeping the traditional Front Desk operational for standard guests while routing target VIP/group cohorts through the auxiliary Smart Travel Hub (W = 2 mins) reduces queue load to <strong>${(lambda * (2/60)).toFixed(1)} guests</strong>.`;
+
+      // --- MODULE 3: INVENTORY & EOQ ---
+      const d = v('in-eoq-d'), s = v('in-eoq-s'), h = v('in-eoq-h') || 1;
+      const cogs = v('in-inv-cogs'), avgInv = v('in-inv-avg') || 1;
+      const lead = v('in-inv-lead'), safety = v('in-inv-safety');
+
+      const eoq = Math.sqrt((2 * d * s) / h);
+      const minCost = ((d / Math.max(1, eoq)) * s) + ((eoq / 2) * h);
+      const turn = cogs / avgInv;
+      const dsi = 30 / Math.max(0.1, turn);
+      const par = lead + safety;
+
+      const fxMinCost = getFX(minCost);
+      const fxAvgInv = getFX(avgInv);
+      const fxCogs = getFX(cogs);
+
+      document.getElementById('kpi-eoq').innerText = Math.round(eoq) + ' Units';
+      document.getElementById('fx-eoq-cost').innerText = `Cost: ${fxMinCost.sub}`;
+      document.getElementById('kpi-inv-turn').innerText = turn.toFixed(1) + 'x / Mo';
+      document.getElementById('fx-inv-avg').innerText = `Inv: ${fxAvgInv.all}`;
+      document.getElementById('kpi-inv-days').innerText = dsi.toFixed(1) + ' Days';
+      document.getElementById('fx-inv-cogs').innerText = `COGS: ${fxCogs.all}`;
+      document.getElementById('kpi-inv-par').innerText = Math.round(par) + ' Units';
+      document.getElementById('kpi-eoq-cost-banner').innerText = `Minimum Annual Logistics Cost: ${fxMinCost.all}`;
+
+      const qPoints = [100, 200, 300, Math.round(eoq), 600, 800, 1000];
+      charts.eoq.data.labels = qPoints.map((q, idx) => idx === 3 ? `${q} (EOQ)` : `${q}`);
+      charts.eoq.data.datasets[0].data = qPoints.map(q => Math.round(((d / q) * s) + ((q / 2) * h)));
+      charts.eoq.data.datasets[1].data = qPoints.map(q => Math.round((q / 2) * h));
+      charts.eoq.data.datasets[2].data = qPoints.map(q => Math.round((d / q) * s));
+      charts.eoq.update();
+
+      document.getElementById('verdict-inventory').innerHTML = `<strong>EOQ U-Curve Directive:</strong> Ordering in batches of <strong>${Math.round(eoq)} units</strong> when stock reaches the Par Reorder trigger of <strong>${Math.round(par)} units</strong> locks in the lowest point on the Total Cost U-Curve at <strong>${fxMinCost.all}</strong> annually.`;
+
+      // --- MODULE 4: GUEST CLV, NPS & CoQ ---
+      const spend = v('in-clv-spend'), freq = v('in-clv-freq'), yrs = v('in-clv-years');
+      const cac = v('in-clv-cac') || 1, margin = v('in-clv-margin') / 100;
+      const npsFd = v('in-nps-fd'), npsFb = v('in-nps-fb'), npsHk = v('in-nps-hk');
+      const prev = v('in-coq-prev'), fail = v('in-coq-fail'), saved = v('in-coq-saved');
+
+      const netClv = (spend * freq * yrs * margin) - cac;
+      const compNps = (npsFd + npsFb + npsHk) / 3;
+      const savedEquity = saved * netClv;
+      const maxComp = netClv * 0.10;
+
+      const fxClv = getFX(netClv);
+      const fxSaved = getFX(savedEquity);
+      const fxComp = getFX(maxComp);
+
+      document.getElementById('kpi-clv').innerText = fxClv.primary;
+      document.getElementById('fx-clv').innerText = fxClv.sub;
+      document.getElementById('kpi-clv-ratio').innerText = `CLV:CAC = ${(netClv / cac).toFixed(1)}x`;
+      document.getElementById('kpi-nps').innerText = (compNps > 0 ? '+' : '') + compNps.toFixed(1);
+      document.getElementById('kpi-coq-saved').innerText = fxSaved.primary;
+      document.getElementById('fx-coq-saved').innerText = fxSaved.sub;
+      document.getElementById('kpi-coq-comp').innerText = fxComp.primary;
+      document.getElementById('fx-coq-comp').innerText = fxComp.sub;
+
+      charts.npsRadar.data.datasets[0].data = [npsFd, npsFb, npsHk, Math.min(100, compNps + 12), Math.min(100, (netClv / cac) * 3.5)];
+      charts.npsRadar.update();
+
+      charts.coqBar.data.datasets[0].data = [prev, fail, Math.round(savedEquity)];
+      charts.coqBar.update();
+
+      document.getElementById('verdict-guest').innerHTML = `<strong>CLV &amp; Cost of Quality (CoQ) Economics:</strong> Each repeat luxury guest holds a Net Lifetime Value of <strong>${fxClv.all}</strong>. Pre-authorizing frontline managers to execute instant service recovery up to <strong>${fxComp.all}</strong> (10% of Net CLV) saved ${saved} VIP relationships this month, preserving <strong>${fxSaved.all}</strong> in future brand equity.`;
+
+      // --- MODULE 5: USALI P&L & DUPONT ---
+      const fRev = v('in-fin-rev') || 1, fDept = v('in-fin-dept'), fUndist = v('in-fin-undist'), fFixed = v('in-fin-fixed');
+      const ca = v('in-fin-ca'), cl = v('in-fin-cl') || 1, assets = v('in-fin-assets') || 1, eq = v('in-fin-equity') || 1;
+
+      const gop = fRev - fDept - fUndist;
+      const gopPct = (gop / fRev) * 100;
+      const netInc = gop - fFixed;
+      const npm = (netInc / fRev) * 100;
+      const curr = ca / cl;
+      const roa = ((netInc * 12) / assets) * 100;
+      const roe = ((netInc * 12) / eq) * 100;
+
+      const fxGop = getFX(gop);
+      const fxNi = getFX(netInc);
+      const fxWc = getFX(ca - cl);
+
+      document.getElementById('kpi-fin-gop').innerText = fxGop.primary;
+      document.getElementById('fx-fin-gop').innerText = fxGop.sub;
+      document.getElementById('kpi-fin-goppct').innerText = gopPct.toFixed(1) + '% GOP Margin';
+      document.getElementById('kpi-fin-ni').innerText = fxNi.primary;
+      document.getElementById('fx-fin-ni').innerText = fxNi.sub;
+      document.getElementById('kpi-fin-npm').innerText = `NPM: ${npm.toFixed(1)}%`;
+      document.getElementById('kpi-fin-curr').innerText = curr.toFixed(2) + 'x';
+      document.getElementById('fx-fin-wc').innerText = `Work Cap: ${fxWc.all}`;
+      document.getElementById('kpi-fin-roaroe').innerText = `${roa.toFixed(1)}% / ${roe.toFixed(1)}%`;
+
+      charts.usali.data.datasets[0].data = [fRev, fDept, fUndist, gop, fFixed, netInc];
+      charts.usali.update();
+
+      charts.dupont.data.datasets[0].data = [+gopPct.toFixed(1), +npm.toFixed(1), +roa.toFixed(1), +roe.toFixed(1)];
+      charts.dupont.update();
+
+      document.getElementById('verdict-finance').innerHTML = `<strong>USALI &amp; DuPont Institutional Verdict:</strong> Monthly GOP reaches <strong>${fxGop.all} (${gopPct.toFixed(1)}%)</strong>, flowing down to a Net Profit of <strong>${fxNi.all} (${npm.toFixed(1)}% NPM)</strong>. Net Working Capital stands at <strong>${fxWc.all}</strong> (Current Ratio ${curr.toFixed(2)}x), driving an annualized Return on Equity (ROE) of <strong>${roe.toFixed(1)}%</strong>.`;
+
+      // --- MODULE 6: YIELD & REVPAR COMMAND ---
+      const rAvail = v('in-rev-avail') || 1, rSold = v('in-rev-sold') || 1;
+      const rRoomRev = v('in-rev-roomrev'), rAnc = v('in-rev-anc'), rGop = v('in-rev-gop');
+      const rRack = v('in-rev-rack') || 1, rComp = v('in-rev-comp') || 1;
+
+      const occ = (rSold / rAvail) * 100;
+      const rAdr = rRoomRev / rSold;
+      const revpar = rRoomRev / rAvail;
+      const trevpar = (rRoomRev + rAnc) / rAvail;
+      const goppar = rGop / rAvail;
+      const yieldEff = (rRoomRev / (rAvail * rRack)) * 100;
+      const rgi = (revpar / rComp) * 100;
+
+      const fxAdr = getFX(rAdr, 0);
+      const fxRevpar = getFX(revpar, 2);
+      const fxTrev = getFX(trevpar, 0);
+      const fxGoppar = getFX(goppar, 0);
+      const fxRack = getFX(rRack, 0);
+
+      document.getElementById('kpi-rev-occadr').innerText = `${occ.toFixed(1)}% | ${fxAdr.primary}`;
+      document.getElementById('fx-rev-adr').innerText = `ADR: ${fxAdr.sub}`;
+      document.getElementById('kpi-rev-revpar').innerText = fxRevpar.primary;
+      document.getElementById('fx-rev-revpar').innerText = fxRevpar.sub;
+      document.getElementById('kpi-rev-rgi').innerText = `RGI Index: ${rgi.toFixed(1)}`;
+      document.getElementById('kpi-rev-trevgop').innerText = `${fxTrev.primary} / ${fxGoppar.primary}`;
+      document.getElementById('fx-rev-goppar').innerText = `GOPPAR: ${fxGoppar.sub}`;
+      document.getElementById('kpi-rev-yield').innerText = `${yieldEff.toFixed(1)}%`;
+      document.getElementById('fx-rev-rack').innerText = `Rack: ${fxRack.all}`;
+
+      charts.yieldCombo.data.datasets[0].data = [rRack, +rAdr.toFixed(2), +revpar.toFixed(2), rComp, +trevpar.toFixed(2), +goppar.toFixed(2)];
+      charts.yieldCombo.update();
+
+      document.getElementById('verdict-yield').innerHTML = `<strong>Revenue &amp; Yield Command Synthesis:</strong> Property achieves an ADR of <strong>${fxAdr.all}</strong> and RevPAR of <strong>${fxRevpar.all}</strong>, outperforming the STR competitive set with an RGI of <strong>${rgi.toFixed(1)}</strong>. Total ancillary capture lifts TRevPAR to <strong>${fxTrev.all}</strong> and bottom-line GOPPAR to <strong>${fxGoppar.all}</strong>.`;
+
+      // --- MODULE 7: 4 INSTITUTIONAL FINANCIAL STATEMENTS ---
+      const stRoomRev = v('in-st-roomrev'), stFbRev = v('in-st-fbrev'), stOthRev = v('in-st-othrev');
+      const stTotRev = Math.max(1, stRoomRev + stFbRev + stOthRev);
+      const stDept = v('in-st-dept'), stUndist = v('in-st-undist');
+      const stGop = stTotRev - stDept - stUndist;
+      const stMgt = v('in-st-mgt');
+      const stEbitda = stGop - stMgt;
+      const stDa = v('in-st-da');
+      const stEbit = stEbitda - stDa;
+      const stIntTax = v('in-st-inttax');
+      const stNetInc = stEbit - stIntTax;
+
+      const stBegCash = v('in-st-begcash');
+      const stDwc = v('in-st-dwc');
+      const stOcf = stNetInc + stDa - stDwc;
+      const stCapex = v('in-st-capex');
+      const stIcf = -Math.abs(stCapex);
+      const stFcf = stOcf + stIcf;
+      const stDebtCf = v('in-st-debtcf');
+      const stEqIss = v('in-st-eqiss');
+      const stDiv = v('in-st-div');
+      const stFinCf = stDebtCf + stEqIss - Math.abs(stDiv);
+      const stNetCf = stOcf + stIcf + stFinCf;
+      const stEndCash = stBegCash + stNetCf;
+
+      const stArInv = v('in-st-arinv');
+      const stCurrAssets = stEndCash + stArInv;
+      const stPpe = v('in-st-ppe');
+      const stTotAssets = stCurrAssets + stPpe;
+
+      const stCl = v('in-st-cl');
+      const stLtDebt = v('in-st-ltdebt');
+      const stTotLiab = stCl + stLtDebt;
+
+      const stEndEquity = stTotAssets - stTotLiab;
+      const stNetEqChange = stNetInc + stEqIss - Math.abs(stDiv);
+      const stBegEquity = stEndEquity - stNetEqChange;
+
+      const fxStNi = getFX(stNetInc);
+      const fxStAssets = getFX(stTotAssets);
+      const fxStFcf = getFX(stFcf);
+      const fxStEq = getFX(stEndEquity);
+
+      document.getElementById('kpi-st-ni').innerText = fxStNi.primary;
+      document.getElementById('fx-st-ni').innerText = fxStNi.sub;
+      document.getElementById('kpi-st-ebitda').innerText = `EBITDA: ${getFX(stEbitda).primary} (${((stEbitda/stTotRev)*100).toFixed(1)}%)`;
+
+      document.getElementById('kpi-st-assets').innerText = fxStAssets.primary;
+      document.getElementById('fx-st-assets').innerText = fxStAssets.sub;
+
+      document.getElementById('kpi-st-fcf').innerText = fxStFcf.primary;
+      document.getElementById('fx-st-fcf').innerText = fxStFcf.sub;
+      document.getElementById('kpi-st-endcash').innerText = `End Cash: ${getFX(stEndCash).primary}`;
+
+      document.getElementById('kpi-st-eq').innerText = fxStEq.primary;
+      document.getElementById('fx-st-eq').innerText = fxStEq.sub;
+      document.getElementById('kpi-st-dte').innerText = `Debt-to-Equity: ${(stTotLiab / Math.max(1, stEndEquity)).toFixed(2)}x`;
+
+      const p = (val) => ((val / stTotRev) * 100).toFixed(1) + '%';
+      document.getElementById('tbody-income').innerHTML = [
+        stmtRow('Rooms Revenue', stRoomRev, p(stRoomRev)),
+        stmtRow('F&B Revenue', stFbRev, p(stFbRev)),
+        stmtRow('Spa & Ancillary Revenue', stOthRev, p(stOthRev)),
+        stmtRow('Total Operating Revenue', stTotRev, '100.0%', true),
+        stmtRow('Less: Departmental Expenses', -stDept, p(-stDept)),
+        stmtRow('Less: Undistributed Expenses', -stUndist, p(-stUndist)),
+        stmtRow('Gross Operating Profit (GOP)', stGop, p(stGop), true),
+        stmtRow('Less: Mgt Fees, Insur. & Prop Tax', -stMgt, p(-stMgt)),
+        stmtRow('EBITDA', stEbitda, p(stEbitda), true),
+        stmtRow('Less: Depreciation & Amort.', -stDa, p(-stDa)),
+        stmtRow('Less: Interest & Income Taxes', -stIntTax, p(-stIntTax)),
+        stmtRow('Net Income (Bottom Line)', stNetInc, p(stNetInc), true)
+      ].join('');
+
+      const pb = (val) => ((val / Math.max(1, stTotAssets)) * 100).toFixed(1) + '%';
+      document.getElementById('tbody-balance').innerHTML = [
+        stmtRow('Cash & Equivalents (Ending)', stEndCash, pb(stEndCash)),
+        stmtRow('Accounts Receivable & Inventory', stArInv, pb(stArInv)),
+        stmtRow('Total Current Assets', stCurrAssets, pb(stCurrAssets), true),
+        stmtRow('Net Property, Plant & Equip (PP&E)', stPpe, pb(stPpe)),
+        stmtRow('TOTAL ASSETS', stTotAssets, '100.0%', true),
+        stmtRow('Current Liabilities (A/P & Accrued)', stCl, pb(stCl)),
+        stmtRow('Long-Term Senior & Mortgage Debt', stLtDebt, pb(stLtDebt)),
+        stmtRow('Total Liabilities', stTotLiab, pb(stTotLiab), true),
+        stmtRow('Total Shareholders\' Equity', stEndEquity, pb(stEndEquity)),
+        stmtRow('TOTAL LIABILITIES & EQUITY', stTotLiab + stEndEquity, '100.0%', true)
+      ].join('');
+
+      document.getElementById('tbody-cashflow').innerHTML = [
+        stmtRow('Net Income', stNetInc, 'Op.'),
+        stmtRow('Add Back: Depreciation & Amort.', stDa, 'Non-Cash'),
+        stmtRow('Less: Working Capital Change (ΔWC)', -stDwc, 'WC'),
+        stmtRow('Cash Flow from Operations (OCF)', stOcf, 'OCF', true),
+        stmtRow('Capital Expenditures (CAPEX)', stIcf, 'ICF'),
+        stmtRow('Free Cash Flow (FCF = OCF - CAPEX)', stFcf, 'FCF', true),
+        stmtRow('Net Debt Issued / (Repaid)', stDebtCf, 'Debt'),
+        stmtRow('New Equity Issued less Dividends', stEqIss - Math.abs(stDiv), 'Eq/Div'),
+        stmtRow('Cash Flow from Financing (CFF)', stFinCf, 'CFF', true),
+        stmtRow('Net Change in Cash', stNetCf, 'ΔCash'),
+        stmtRow('Beginning Cash Balance', stBegCash, 'Beg'),
+        stmtRow('Ending Cash Balance (Links to BS)', stEndCash, 'End', true)
+      ].join('');
+
+      document.getElementById('tbody-equity').innerHTML = [
+        stmtRow('Beginning Shareholders\' Equity', stBegEquity, 'Opening'),
+        stmtRow('Plus: Net Income (from P&L)', stNetInc, '+Profit'),
+        stmtRow('Plus: New Capital Contributions', stEqIss, '+CapIn'),
+        stmtRow('Less: Shareholder Dividends Paid', -Math.abs(stDiv), '-Divs'),
+        stmtRow('Net Addition to Equity', stNetEqChange, 'ΔEquity', true),
+        stmtRow('Ending Shareholders\' Equity (Links to BS)', stEndEquity, 'Closing', true)
+      ].join('');
+
+      charts.bs.data.datasets[0].data = [stCurrAssets, stPpe, stCl, stLtDebt, stEndEquity];
+      charts.bs.update();
+
+      charts.cf.data.datasets[0].data = [stOcf, stIcf, stFinCf, stFcf, stEndCash];
+      charts.cf.update();
+
+      document.getElementById('verdict-statements').innerHTML = `<strong>4-Statement Institutional Audit:</strong> Top-line revenue of <strong>${getFX(stTotRev).all}</strong> converts into <strong>${getFX(stGop).all} GOP (${p(stGop)})</strong> and <strong>${fxStNi.all} Net Income (${p(stNetInc)})</strong>. Operating Cash Flow of <strong>${getFX(stOcf).all}</strong> easily funds <strong>${getFX(Math.abs(stCapex)).all}</strong> in CAPEX, leaving <strong>${fxStFcf.all} in Free Cash Flow (FCF)</strong>. Ending Cash of <strong>${getFX(stEndCash).all}</strong> flows directly into the Balance Sheet, where Total Assets of <strong>${fxStAssets.all}</strong> reconcile to the penny with Total Liabilities (<strong>${getFX(stTotLiab).all}</strong>) plus Ending Shareholders' Equity (<strong>${fxStEq.all}</strong>).`;
+    }
+
+    // ==========================================================
+    // FULL-PRESENTATION PRINT ENGINE (ALL 7 MODULES + ALL VALUES)
+    // ==========================================================
+    function printFullExecutiveBrief() {
+      showNotice('Compiling Full 7-Module Executive Brief for Print...');
+
+      // Temporarily unhide all sections so Chart.js canvases render at full resolution
+      const sections = document.querySelectorAll('.module-section');
+      sections.forEach(s => s.classList.remove('hidden'));
+      Object.values(charts).forEach(c => {
+        c.resize();
+        c.update('none');
+      });
+
+      setTimeout(() => {
+        const baseCurr = document.getElementById('base-currency').value;
+        const rateEUR = document.getElementById('fx-eur').value;
+        const rateCHF = document.getElementById('fx-chf').value;
+
+        const chartImg = (key) => {
+          try { return charts[key].toBase64Image(); } catch (e) { return ''; }
+        };
+
+        const extractTableHTML = (tbodyId) => {
+          let html = '<table style="width:100%; border-collapse:collapse; font-size:10px; font-family:monospace;">';
+          document.querySelectorAll(`#${tbodyId} tr`).forEach(tr => {
+            const isTot = tr.classList.contains('stmt-total');
+            const tds = tr.querySelectorAll('td');
+            const label = tds[0]?.innerText || '';
+            const valLines = (tds[1]?.innerText || '').split('\n');
+            const pct = tds[2]?.innerText || '';
+            html += `<tr style="border-bottom:1px solid #cbd5e1; ${isTot ? 'background:#f1f5f9; font-weight:bold;' : ''}">
+              <td style="padding:4px 6px; color:#0f172a;">${label}</td>
+              <td style="padding:4px 6px; text-align:right; color:#0f172a;"><strong>${valLines[0] || ''}</strong> <span style="color:#475569; font-size:9px;">(${valLines[1] || ''})</span></td>
+              <td style="padding:4px 6px; text-align:right; color:#059669; font-weight:bold;">${pct}</td>
+            </tr>`;
+          });
+          html += '</table>';
+          return html;
+        };
+
+        const kpiBox = (title, mainId, subId, noteId) => {
+          const m = document.getElementById(mainId)?.innerText || '';
+          const s = subId ? (document.getElementById(subId)?.innerText || '') : '';
+          const n = noteId ? (document.getElementById(noteId)?.innerText || '') : '';
+          return `<div style="border:1px solid #cbd5e1; border-left:3px solid #c59b27; border-radius:6px; padding:7px 9px; background:#f8fafc;">
+            <div style="font-size:9px; color:#475569; text-transform:uppercase; font-family:monospace;">${title}</div>
+            <div style="font-size:13px; font-weight:800; color:#0a192f; font-family:monospace; margin-top:2px;">${m}</div>
+            ${s ? `<div style="font-size:9.5px; color:#334155; font-family:monospace;">${s}</div>` : ''}
+            ${n ? `<div style="font-size:9px; color:#059669; font-family:monospace; margin-top:2px;">${n}</div>` : ''}
+          </div>`;
+        };
+
+        const dossier = document.getElementById('printable-executive-dossier');
+        dossier.innerHTML = `
+          <div style="max-width:760px; margin:0 auto; font-family:'Inter', sans-serif; color:#0f172a;">
+            
+            <!-- BRANDED STUDIO HEADER -->
+            <div style="border-bottom:3px solid #c59b27; padding-bottom:10px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:42px; height:42px; border-radius:8px; background:#c59b27; color:#060d17; display:flex; align-items:center; justify-content:center; font-family:'Cinzel', serif; font-weight:900; font-size:18px; border:1px solid #854d0e;">
+                  KP
+                </div>
+                <div>
+                  <h1 style="margin:0; font-family:'Cinzel', serif; font-size:18px; font-weight:800; color:#0a192f; letter-spacing:0.5px;">KALLIOPI PAPADOPOULOU</h1>
+                  <p style="margin:2px 0 0; font-size:10px; color:#b08920; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">
+                    Quantitative Finance • Commercial Yield • Operational Telemetry
+                  </p>
+                </div>
+              </div>
+              <div style="text-align:right; font-family:monospace; font-size:9.5px; color:#334155;">
+                <strong>THE C-SUITE POCKET NOTEPAD // FULL EXECUTIVE BRIEF</strong><br>
+                Base Input: <strong>${baseCurr}</strong> | 1 USD = €${rateEUR} | 1 USD = CHF ${rateCHF}
+              </div>
+            </div>
+
+            <!-- MODULE 1 -->
+            <div class="print-module-block">
+              <div style="font-family:'Cinzel', serif; font-size:13px; font-weight:800; color:#0a192f; border-bottom:1px solid #e2e8f0; padding-bottom:4px; margin-bottom:8px;">
+                MODULE 1: ASSET, CAPEX, OPEX &amp; CVP BREAK-EVEN (#1, #2, #7)
+              </div>
+              <div style="font-size:9.5px; font-family:monospace; color:#334155; margin-bottom:8px; background:#f1f5f9; padding:5px 8px; border-radius:4px;">
+                <strong>Calibrated Inputs (${baseCurr}):</strong> Gross Rev = ${v('in-capex-rev').toLocaleString()} | Maint. CAPEX = ${v('in-capex-maint').toLocaleString()} | Growth CAPEX = ${v('in-capex-growth').toLocaleString()} | Tech CAPEX = ${v('in-capex-strat').toLocaleString()} | Fixed OPEX = ${v('in-opex-fixed').toLocaleString()} | Var CPOR = ${v('in-opex-var')} | ADR = ${v('in-bep-adr')} | Avail Rooms = ${v('in-bep-avail').toLocaleString()}
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-bottom:10px;">
+                ${kpiBox('Total CAPEX (#1)', 'kpi-capex-tot', 'fx-capex-tot', 'kpi-capex-int')}
+                ${kpiBox('Est. Monthly OPEX (#2)', 'kpi-opex-tot', 'fx-opex-tot', 'kpi-opex-ratio')}
+                ${kpiBox('Contribution / Room', 'kpi-bep-cm', 'fx-bep-cm', '')}
+                ${kpiBox('Break-Even Point (#7)', 'kpi-bep-occ', 'fx-bep-rev', 'kpi-bep-day')}
+              </div>
+              <div style="display:grid; grid-template-columns:2fr 1fr; gap:10px; align-items:center; margin-bottom:8px; background:#060d17; padding:8px; border-radius:6px;">
+                <img src="${chartImg('cvp')}" style="width:100%; height:155px; object-fit:contain;" />
+                <img src="${chartImg('capexPie')}" style="width:100%; height:155px; object-fit:contain;" />
+              </div>
+              <div style="font-size:10.5px; color:#1e293b; background:#f8fafc; padding:7px 10px; border-left:3px solid #c59b27; border-radius:4px;">
+                ${document.getElementById('verdict-capex').innerHTML}
+              </div>
+            </div>
+
+            <!-- MODULE 2 -->
+            <div class="print-module-block">
+              <div style="font-family:'Cinzel', serif; font-size:13px; font-weight:800; color:#0a192f; border-bottom:1px solid #e2e8f0; padding-bottom:4px; margin-bottom:8px;">
+                MODULE 2: LABOR PRODUCTIVITY, CAPACITY UTILIZATION &amp; LITTLE'S LAW QUEUE PHYSICS (#3, #6)
+              </div>
+              <div style="font-size:9.5px; font-family:monospace; color:#334155; margin-bottom:8px; background:#f1f5f9; padding:5px 8px; border-radius:4px;">
+                <strong>Calibrated Inputs:</strong> Payroll = ${v('in-lab-cost').toLocaleString()} | Rev = ${v('in-lab-rev').toLocaleString()} | Rooms Cleaned/Day = ${v('in-lab-rooms')} | HK Hours = ${v('in-lab-hkhours')} | F&amp;B Covers = ${v('in-lab-covers')} | F&amp;B Hours = ${v('in-lab-fbhours')} | Arrival λ = ${v('in-little-lambda')}/hr | Check-In W = ${v('in-little-w')}m
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-bottom:10px;">
+                ${kpiBox('Payroll & Labor % (#3)', 'kpi-lab-pct', 'fx-lab-cost', '')}
+                ${kpiBox('HK Productivity (#3)', 'kpi-lab-hk', '', '')}
+                ${kpiBox('F&B Productivity (#3)', 'kpi-lab-fb', 'fx-lab-revhr', '')}
+                ${kpiBox('Lobby Queue Load (#6b)', 'kpi-little-l', '', '')}
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; align-items:center; margin-bottom:8px; background:#060d17; padding:8px; border-radius:6px;">
+                <img src="${chartImg('littles')}" style="width:100%; height:150px; object-fit:contain;" />
+                <img src="${chartImg('laborBar')}" style="width:100%; height:150px; object-fit:contain;" />
+              </div>
+              <div style="font-size:10.5px; color:#1e293b; background:#f8fafc; padding:7px 10px; border-left:3px solid #c59b27; border-radius:4px;">
+                ${document.getElementById('verdict-labor').innerHTML}
+              </div>
+            </div>
+
+            <!-- MODULE 3 & MODULE 4 ON PAGE 2 -->
+            <div class="print-module-block print-page-break">
+              <div style="font-family:'Cinzel', serif; font-size:13px; font-weight:800; color:#0a192f; border-bottom:1px solid #e2e8f0; padding-bottom:4px; margin-bottom:8px;">
+                MODULE 3: SUPPLY CHAIN, PAR STOCK &amp; EOQ U-CURVE MECHANICS (#4, #5, #8)
+              </div>
+              <div style="font-size:9.5px; font-family:monospace; color:#334155; margin-bottom:8px; background:#f1f5f9; padding:5px 8px; border-radius:4px;">
+                <strong>Calibrated Inputs:</strong> Annual Demand D = ${v('in-eoq-d').toLocaleString()} | Order Cost S = ${v('in-eoq-s')} | Holding Cost H = ${v('in-eoq-h')} | Monthly COGS = ${v('in-inv-cogs').toLocaleString()} | Avg Inv = ${v('in-inv-avg').toLocaleString()} | Lead Demand = ${v('in-inv-lead')} | Safety Stock = ${v('in-inv-safety')}
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-bottom:10px;">
+                ${kpiBox('Optimal EOQ (#5)', 'kpi-eoq', 'fx-eoq-cost', '')}
+                ${kpiBox('Inventory Turnover (#4)', 'kpi-inv-turn', 'fx-inv-avg', '')}
+                ${kpiBox('Days Inventory (DSI)', 'kpi-inv-days', 'fx-inv-cogs', '')}
+                ${kpiBox('Par Reorder Trigger', 'kpi-inv-par', '', '')}
+              </div>
+              <div style="background:#060d17; padding:8px; border-radius:6px; margin-bottom:8px; text-align:center;">
+                <img src="${chartImg('eoq')}" style="width:100%; height:150px; object-fit:contain;" />
+              </div>
+              <div style="font-size:10.5px; color:#1e293b; background:#f8fafc; padding:7px 10px; border-left:3px solid #c59b27; border-radius:4px;">
+                ${document.getElementById('verdict-inventory').innerHTML}
+              </div>
+            </div>
+
+            <div class="print-module-block">
+              <div style="font-family:'Cinzel', serif; font-size:13px; font-weight:800; color:#0a192f; border-bottom:1px solid #e2e8f0; padding-bottom:4px; margin-bottom:8px;">
+                MODULE 4: GUEST LIFETIME VALUE (CLV), DEPARTMENTAL NPS &amp; COST OF QUALITY (#9–#15)
+              </div>
+              <div style="font-size:9.5px; font-family:monospace; color:#334155; margin-bottom:8px; background:#f1f5f9; padding:5px 8px; border-radius:4px;">
+                <strong>Calibrated Inputs:</strong> Spend/Stay = ${v('in-clv-spend').toLocaleString()} | Stays/Yr = ${v('in-clv-freq')} | Lifespan = ${v('in-clv-years')} yrs | CAC = ${v('in-clv-cac')} | GOP Margin = ${v('in-clv-margin')}% | NPS (FD/F&amp;B/HK) = ${v('in-nps-fd')}/${v('in-nps-fb')}/${v('in-nps-hk')} | Prevention QA = ${v('in-coq-prev').toLocaleString()} | Failure Comps = ${v('in-coq-fail').toLocaleString()} | VIPs Saved = ${v('in-coq-saved')}
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-bottom:10px;">
+                ${kpiBox('Net Customer CLV (#10)', 'kpi-clv', 'fx-clv', 'kpi-clv-ratio')}
+                ${kpiBox('Composite NPS (#11)', 'kpi-nps', '', '')}
+                ${kpiBox('CLV Equity Saved (#14, 15)', 'kpi-coq-saved', 'fx-coq-saved', '')}
+                ${kpiBox('Empowered Comp Ceiling', 'kpi-coq-comp', 'fx-coq-comp', '')}
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; align-items:center; margin-bottom:8px; background:#060d17; padding:8px; border-radius:6px;">
+                <img src="${chartImg('npsRadar')}" style="width:100%; height:150px; object-fit:contain;" />
+                <img src="${chartImg('coqBar')}" style="width:100%; height:150px; object-fit:contain;" />
+              </div>
+              <div style="font-size:10.5px; color:#1e293b; background:#f8fafc; padding:7px 10px; border-left:3px solid #c59b27; border-radius:4px;">
+                ${document.getElementById('verdict-guest').innerHTML}
+              </div>
+            </div>
+
+            <!-- MODULE 5 & MODULE 6 ON PAGE 3 -->
+            <div class="print-module-block print-page-break">
+              <div style="font-family:'Cinzel', serif; font-size:13px; font-weight:800; color:#0a192f; border-bottom:1px solid #e2e8f0; padding-bottom:4px; margin-bottom:8px;">
+                MODULE 5: USALI P&amp;L WATERFALL, LIQUIDITY &amp; DUPONT PROFITABILITY RATIOS (#16–#26)
+              </div>
+              <div style="font-size:9.5px; font-family:monospace; color:#334155; margin-bottom:8px; background:#f1f5f9; padding:5px 8px; border-radius:4px;">
+                <strong>Calibrated Inputs:</strong> Gross Rev = ${v('in-fin-rev').toLocaleString()} | Dept Exp = ${v('in-fin-dept').toLocaleString()} | Undist Exp = ${v('in-fin-undist').toLocaleString()} | Fixed Charges = ${v('in-fin-fixed').toLocaleString()} | Curr Assets = ${v('in-fin-ca').toLocaleString()} | Curr Liab = ${v('in-fin-cl').toLocaleString()} | Total Assets = ${v('in-fin-assets').toLocaleString()} | Owner Equity = ${v('in-fin-equity').toLocaleString()}
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-bottom:10px;">
+                ${kpiBox('GOP & Margin (#20)', 'kpi-fin-gop', 'fx-fin-gop', 'kpi-fin-goppct')}
+                ${kpiBox('Net Profit & NPM (#21)', 'kpi-fin-ni', 'fx-fin-ni', 'kpi-fin-npm')}
+                ${kpiBox('Liquidity Current (#19)', 'kpi-fin-curr', 'fx-fin-wc', '')}
+                ${kpiBox('Annual ROA / ROE (#22, 23)', 'kpi-fin-roaroe', '', '')}
+              </div>
+              <div style="display:grid; grid-template-columns:1.3fr 1fr; gap:10px; align-items:center; margin-bottom:8px; background:#060d17; padding:8px; border-radius:6px;">
+                <img src="${chartImg('usali')}" style="width:100%; height:150px; object-fit:contain;" />
+                <img src="${chartImg('dupont')}" style="width:100%; height:150px; object-fit:contain;" />
+              </div>
+              <div style="font-size:10.5px; color:#1e293b; background:#f8fafc; padding:7px 10px; border-left:3px solid #c59b27; border-radius:4px;">
+                ${document.getElementById('verdict-finance').innerHTML}
+              </div>
+            </div>
+
+            <div class="print-module-block">
+              <div style="font-family:'Cinzel', serif; font-size:13px; font-weight:800; color:#0a192f; border-bottom:1px solid #e2e8f0; padding-bottom:4px; margin-bottom:8px;">
+                MODULE 6: COMMERCIAL REVENUE MANAGEMENT, REVPAR, GOPPAR &amp; YIELD COMMAND (#27–#36)
+              </div>
+              <div style="font-size:9.5px; font-family:monospace; color:#334155; margin-bottom:8px; background:#f1f5f9; padding:5px 8px; border-radius:4px;">
+                <strong>Calibrated Inputs:</strong> Avail Rooms = ${v('in-rev-avail').toLocaleString()} | Rooms Sold = ${v('in-rev-sold').toLocaleString()} | Rooms Rev = ${v('in-rev-roomrev').toLocaleString()} | Ancillary Rev = ${v('in-rev-anc').toLocaleString()} | Total GOP = ${v('in-rev-gop').toLocaleString()} | Potential Rack = ${v('in-rev-rack')} | STR Comp RevPAR = ${v('in-rev-comp')}
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-bottom:10px;">
+                ${kpiBox('Occupancy & ADR (#29, 30)', 'kpi-rev-occadr', 'fx-rev-adr', '')}
+                ${kpiBox('RevPAR & RGI (#28, 34)', 'kpi-rev-revpar', 'fx-rev-revpar', 'kpi-rev-rgi')}
+                ${kpiBox('TRevPAR & GOPPAR (#31, 32)', 'kpi-rev-trevgop', 'fx-rev-goppar', '')}
+                ${kpiBox('Yield Efficiency (#35, 36)', 'kpi-rev-yield', 'fx-rev-rack', '')}
+              </div>
+              <div style="background:#060d17; padding:8px; border-radius:6px; margin-bottom:8px; text-align:center;">
+                <img src="${chartImg('yieldCombo')}" style="width:100%; height:150px; object-fit:contain;" />
+              </div>
+              <div style="font-size:10.5px; color:#1e293b; background:#f8fafc; padding:7px 10px; border-left:3px solid #c59b27; border-radius:4px;">
+                ${document.getElementById('verdict-yield').innerHTML}
+              </div>
+            </div>
+
+            <!-- MODULE 7: ALL 4 FINANCIAL STATEMENTS ON PAGE 4 -->
+            <div class="print-module-block print-page-break">
+              <div style="font-family:'Cinzel', serif; font-size:13px; font-weight:800; color:#0a192f; border-bottom:1px solid #e2e8f0; padding-bottom:4px; margin-bottom:8px;">
+                MODULE 7: INSTITUTIONAL 4 FINANCIAL STATEMENTS (P&amp;L • BALANCE SHEET • CASH FLOW • EQUITY)
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-bottom:10px;">
+                ${kpiBox('1. Net Income (P&L)', 'kpi-st-ni', 'fx-st-ni', 'kpi-st-ebitda')}
+                ${kpiBox('2. Total Assets (BS)', 'kpi-st-assets', 'fx-st-assets', '')}
+                ${kpiBox('3. Free Cash Flow (FCF)', 'kpi-st-fcf', 'fx-st-fcf', 'kpi-st-endcash')}
+                ${kpiBox('4. Shareholders Equity', 'kpi-st-eq', 'fx-st-eq', 'kpi-st-dte')}
+              </div>
+
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:10px;">
+                <div style="border:1px solid #cbd5e1; border-radius:6px; padding:8px;">
+                  <div style="font-family:'Cinzel', serif; font-weight:bold; font-size:11px; color:#0a192f; border-bottom:1px solid #cbd5e1; padding-bottom:4px; margin-bottom:4px;">I. Income Statement (USALI P&amp;L)</div>
+                  ${extractTableHTML('tbody-income')}
+                </div>
+                <div style="border:1px solid #cbd5e1; border-radius:6px; padding:8px;">
+                  <div style="font-family:'Cinzel', serif; font-weight:bold; font-size:11px; color:#0a192f; border-bottom:1px solid #cbd5e1; padding-bottom:4px; margin-bottom:4px;">II. Balance Sheet (Assets = Liab + Equity)</div>
+                  ${extractTableHTML('tbody-balance')}
+                </div>
+                <div style="border:1px solid #cbd5e1; border-radius:6px; padding:8px;">
+                  <div style="font-family:'Cinzel', serif; font-weight:bold; font-size:11px; color:#0a192f; border-bottom:1px solid #cbd5e1; padding-bottom:4px; margin-bottom:4px;">III. Cash Flow Statement (Indirect)</div>
+                  ${extractTableHTML('tbody-cashflow')}
+                </div>
+                <div style="border:1px solid #cbd5e1; border-radius:6px; padding:8px;">
+                  <div style="font-family:'Cinzel', serif; font-weight:bold; font-size:11px; color:#0a192f; border-bottom:1px solid #cbd5e1; padding-bottom:4px; margin-bottom:4px;">IV. Statement of Shareholders' Equity</div>
+                  ${extractTableHTML('tbody-equity')}
+                </div>
+              </div>
+
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; align-items:center; margin-bottom:8px; background:#060d17; padding:8px; border-radius:6px;">
+                <img src="${chartImg('bs')}" style="width:100%; height:145px; object-fit:contain;" />
+                <img src="${chartImg('cf')}" style="width:100%; height:145px; object-fit:contain;" />
+              </div>
+
+              <div style="font-size:10.5px; color:#1e293b; background:#f8fafc; padding:7px 10px; border-left:3px solid #c59b27; border-radius:4px;">
+                ${document.getElementById('verdict-statements').innerHTML}
+              </div>
+            </div>
+
+            <!-- LOCKED ATTRIBUTION FOOTER ON PRINT -->
+            <div style="border-top:2px solid #c59b27; padding-top:6px; margin-top:10px; display:flex; justify-content:space-between; font-size:9.5px; font-family:monospace; color:#0a192f; font-weight:bold;">
+              <span>© 2026 KALLIOPI PAPADOPOULOU • STRATEGIC TRANSFORMATION STUDIO</span>
+              <span>MOVEMENT. ALWAYS FORWARD.</span>
+            </div>
+
+          </div>
+        `;
+
+        // Restore active tab visibility on screen
+        sections.forEach(s => s.classList.add('hidden'));
+        document.getElementById('mod-' + activeTab).classList.remove('hidden');
+
+        window.print();
+      }, 150);
+    }
+
+    // ==========================================================
+    // SHAREHOLDER DISTRIBUTION SUITE
+    // ==========================================================
+    function copyShareableScenarioLink() {
+      const state = { tab: activeTab, base: document.getElementById('base-currency').value, inputs: {} };
+      document.querySelectorAll('input[type="number"]').forEach(inp => {
+        if (inp.id) state.inputs[inp.id] = inp.value;
+      });
+      const encoded = btoa(encodeURIComponent(JSON.stringify(state)));
+      const url = `${window.location.origin}${window.location.pathname}?scenario=${encoded}`;
+      navigator.clipboard.writeText(url).then(() => {
+        showNotice('Shareable Live Scenario Link copied to clipboard');
+      });
+    }
+
+    function loadScenarioFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      const raw = params.get('scenario');
+      if (!raw) return;
+      try {
+        const state = JSON.parse(decodeURIComponent(atob(raw)));
+        if (state.base) document.getElementById('base-currency').value = state.base;
+        if (state.inputs) {
+          Object.keys(state.inputs).forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = state.inputs[id];
+          });
+        }
+        if (state.tab) switchTab(state.tab);
+        showNotice('Loaded Shareholder Scenario from URL');
+      } catch (e) {}
+    }
+
+    async function exportVisualCardPNG() {
+      if (!window.html2canvas) {
+        showNotice('Visual export engine loading...');
+        return;
+      }
+      showNotice('Rendering KP-Stamped Boardroom Visual Card (PNG)...');
+      const activeSection = document.getElementById('mod-' + activeTab);
+      const hudPanel = activeSection.querySelector('.hud-panel') || activeSection;
+
+      const rawCanvas = await html2canvas(hudPanel, {
+        backgroundColor: '#060d17',
+        scale: 2,
+        useCORS: true
+      });
+
+      const finalCanvas = document.createElement('canvas');
+      const stampHeight = 90;
+      finalCanvas.width = rawCanvas.width;
+      finalCanvas.height = rawCanvas.height + stampHeight;
+      const ctx = finalCanvas.getContext('2d');
+
+      ctx.fillStyle = '#060d17';
+      ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+      ctx.drawImage(rawCanvas, 0, 0);
+
+      ctx.fillStyle = '#030712';
+      ctx.fillRect(0, rawCanvas.height, finalCanvas.width, stampHeight);
+      ctx.fillStyle = '#c59b27';
+      ctx.fillRect(0, rawCanvas.height, finalCanvas.width, 3);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 22px "Cinzel", Georgia, serif';
+      ctx.fillText('KALLIOPI PAPADOPOULOU  |  THE C-SUITE POCKET NOTEPAD', 30, rawCanvas.height + 38);
+
+      ctx.fillStyle = '#facc15';
+      ctx.font = '15px "JetBrains Mono", monospace';
+      ctx.fillText('QUANTITATIVE FINANCE • COMMERCIAL YIELD • OPERATIONAL TELEMETRY (USD / EUR / CHF)', 30, rawCanvas.height + 68);
+
+      const link = document.createElement('a');
+      link.download = `Kalliopi_Papadopoulou_Visual_Brief_${activeTab.toUpperCase()}.png`;
+      link.href = finalCanvas.toDataURL('image/png', 0.95);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showNotice('Visual Card (PNG) exported');
+    }
+
+    function toggleBoardroomMode() {
+      document.body.classList.toggle('boardroom-mode');
+      const isBoard = document.body.classList.contains('boardroom-mode');
+      const btn = document.getElementById('btn-boardroom');
+      btn.innerText = isBoard ? 'Exit Boardroom View' : 'Boardroom View';
+      btn.className = isBoard
+        ? 'px-2.5 py-1.5 text-[11px] font-bold bg-gold-500 text-navy-900 rounded-lg border border-gold-300 transition mono'
+        : 'px-2.5 py-1.5 text-[11px] font-semibold bg-navy-800 hover:bg-gold-500 hover:text-navy-900 text-slate-200 rounded-lg border border-slate-700 transition mono';
+      Object.values(charts).forEach(c => c.resize());
+      showNotice(isBoard ? 'Boardroom 16:9 View Enabled' : 'Standard Slicer View Restored');
+    }
+
+    function exportExcelWorkbook() {
+      if (!window.XLSX) {
+        showNotice('Excel engine initializing...');
+        return;
+      }
+      const wb = XLSX.utils.book_new();
+
+      const kpiData = [
+        ['KALLIOPI PAPADOPOULOU - THE C-SUITE POCKET NOTEPAD // MULTI-CURRENCY TELEMETRY'],
+        ['Framework_ID', 'Metric_Name', 'Module', 'USD_Value', 'EUR_Value', 'CHF_Value'],
+        ['1', 'Total_CAPEX', 'Asset_Economics', getFX(v('in-capex-maint')+v('in-capex-growth')+v('in-capex-strat')).usd, getFX(v('in-capex-maint')+v('in-capex-growth')+v('in-capex-strat')).eur, getFX(v('in-capex-maint')+v('in-capex-growth')+v('in-capex-strat')).chf],
+        ['2', 'Fixed_OPEX', 'Asset_Economics', getFX(v('in-opex-fixed')).usd, getFX(v('in-opex-fixed')).eur, getFX(v('in-opex-fixed')).chf],
+        ['3', 'Total_Payroll', 'Labor_Queue', getFX(v('in-lab-cost')).usd, getFX(v('in-lab-cost')).eur, getFX(v('in-lab-cost')).chf],
+        ['10', 'Net_Customer_CLV', 'Guest_Economics', getFX((v('in-clv-spend')*v('in-clv-freq')*v('in-clv-years')*(v('in-clv-margin')/100))-v('in-clv-cac')).usd, getFX((v('in-clv-spend')*v('in-clv-freq')*v('in-clv-years')*(v('in-clv-margin')/100))-v('in-clv-cac')).eur, getFX((v('in-clv-spend')*v('in-clv-freq')*v('in-clv-years')*(v('in-clv-margin')/100))-v('in-clv-cac')).chf],
+        ['20', 'Gross_Operating_Profit_GOP', 'USALI_Finance', getFX(v('in-fin-rev')-v('in-fin-dept')-v('in-fin-undist')).usd, getFX(v('in-fin-rev')-v('in-fin-dept')-v('in-fin-undist')).eur, getFX(v('in-fin-rev')-v('in-fin-dept')-v('in-fin-undist')).chf],
+        ['28', 'RevPAR', 'Revenue_Yield', getFX(v('in-rev-roomrev')/Math.max(1,v('in-rev-avail')),2).usd, getFX(v('in-rev-roomrev')/Math.max(1,v('in-rev-avail')),2).eur, getFX(v('in-rev-roomrev')/Math.max(1,v('in-rev-avail')),2).chf],
+        ['32', 'GOPPAR', 'Revenue_Yield', getFX(v('in-rev-gop')/Math.max(1,v('in-rev-avail')),2).usd, getFX(v('in-rev-gop')/Math.max(1,v('in-rev-avail')),2).eur, getFX(v('in-rev-gop')/Math.max(1,v('in-rev-avail')),2).chf]
+      ];
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(kpiData), 'Executive_KPIs');
+
+      const tableToSheet = (tbodyId, title) => {
+        const rows = [[title], ['Line Item', 'Primary Currency / Multi-Currency Breakdown', 'Ratio / Tag']];
+        document.querySelectorAll(`#${tbodyId} tr`).forEach(tr => {
+          const cols = Array.from(tr.querySelectorAll('td')).map(td => td.innerText.replace(/\n/g, ' — '));
+          rows.push(cols);
+        });
+        return XLSX.utils.aoa_to_sheet(rows);
+      };
+
+      XLSX.utils.book_append_sheet(wb, tableToSheet('tbody-income', 'I. USALI INCOME STATEMENT'), 'Income_Statement');
+      XLSX.utils.book_append_sheet(wb, tableToSheet('tbody-balance', 'II. INSTITUTIONAL BALANCE SHEET'), 'Balance_Sheet');
+      XLSX.utils.book_append_sheet(wb, tableToSheet('tbody-cashflow', 'III. STATEMENT OF CASH FLOWS'), 'Cash_Flow');
+      XLSX.utils.book_append_sheet(wb, tableToSheet('tbody-equity', 'IV. STATEMENT OF SHAREHOLDERS EQUITY'), 'Shareholders_Equity');
+
+      XLSX.writeFile(wb, 'Kalliopi_Papadopoulou_CSuite_Model.xlsx');
+      showNotice('Multi-Tab Excel Workbook (.XLSX) exported');
+    }
+
+    function exportPowerBICSV() {
+      const rows = [
+        ['Framework_ID', 'Metric_Name', 'Module', 'USD_Value', 'EUR_Value', 'CHF_Value'],
+        ['1', 'Total_CAPEX', 'Asset_Economics', getFX(v('in-capex-maint')+v('in-capex-growth')+v('in-capex-strat')).usd.toFixed(0), getFX(v('in-capex-maint')+v('in-capex-growth')+v('in-capex-strat')).eur.toFixed(0), getFX(v('in-capex-maint')+v('in-capex-growth')+v('in-capex-strat')).chf.toFixed(0)],
+        ['2', 'Fixed_OPEX', 'Asset_Economics', getFX(v('in-opex-fixed')).usd.toFixed(0), getFX(v('in-opex-fixed')).eur.toFixed(0), getFX(v('in-opex-fixed')).chf.toFixed(0)],
+        ['3', 'Total_Payroll', 'Labor_Queue', getFX(v('in-lab-cost')).usd.toFixed(0), getFX(v('in-lab-cost')).eur.toFixed(0), getFX(v('in-lab-cost')).chf.toFixed(0)],
+        ['10', 'Net_Customer_CLV', 'Guest_Economics', getFX((v('in-clv-spend')*v('in-clv-freq')*v('in-clv-years')*(v('in-clv-margin')/100))-v('in-clv-cac')).usd.toFixed(0), getFX((v('in-clv-spend')*v('in-clv-freq')*v('in-clv-years')*(v('in-clv-margin')/100))-v('in-clv-cac')).eur.toFixed(0), getFX((v('in-clv-spend')*v('in-clv-freq')*v('in-clv-years')*(v('in-clv-margin')/100))-v('in-clv-cac')).chf.toFixed(0)],
+        ['20', 'Gross_Operating_Profit_GOP', 'USALI_Finance', getFX(v('in-fin-rev')-v('in-fin-dept')-v('in-fin-undist')).usd.toFixed(0), getFX(v('in-fin-rev')-v('in-fin-dept')-v('in-fin-undist')).eur.toFixed(0), getFX(v('in-fin-rev')-v('in-fin-dept')-v('in-fin-undist')).chf.toFixed(0)],
+        ['28', 'RevPAR', 'Revenue_Yield', getFX(v('in-rev-roomrev')/Math.max(1,v('in-rev-avail')),2).usd.toFixed(2), getFX(v('in-rev-roomrev')/Math.max(1,v('in-rev-avail')),2).eur.toFixed(2), getFX(v('in-rev-roomrev')/Math.max(1,v('in-rev-avail')),2).chf.toFixed(2)],
+        ['32', 'GOPPAR', 'Revenue_Yield', getFX(v('in-rev-gop')/Math.max(1,v('in-rev-avail')),2).usd.toFixed(2), getFX(v('in-rev-gop')/Math.max(1,v('in-rev-avail')),2).eur.toFixed(2), getFX(v('in-rev-gop')/Math.max(1,v('in-rev-avail')),2).chf.toFixed(2)],
+        ['24', 'Statement_Net_Income', 'Financial_Statements', getFX(v('in-st-roomrev')+v('in-st-fbrev')+v('in-st-othrev')-v('in-st-dept')-v('in-st-undist')-v('in-st-mgt')-v('in-st-da')-v('in-st-inttax')).usd.toFixed(0), getFX(v('in-st-roomrev')+v('in-st-fbrev')+v('in-st-othrev')-v('in-st-dept')-v('in-st-undist')-v('in-st-mgt')-v('in-st-da')-v('in-st-inttax')).eur.toFixed(0), getFX(v('in-st-roomrev')+v('in-st-fbrev')+v('in-st-othrev')-v('in-st-dept')-v('in-st-undist')-v('in-st-mgt')-v('in-st-da')-v('in-st-inttax')).chf.toFixed(0)]
+      ];
+      const csvContent = 'data:text/csv;charset=utf-8,' + rows.map(e => e.join(',')).join('\n');
+      const link = document.createElement('a');
+      link.setAttribute('href', encodeURI(csvContent));
+      link.setAttribute('download', 'Kalliopi_Papadopoulou_CSuite_Telemetry.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showNotice('CSV Telemetry exported');
+    }
+
+    window.onload = () => {
+      initCharts();
+      loadScenarioFromURL();
+      updateDashboard();
+    };
+  </script>
+</body>
+</html>
