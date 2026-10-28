@@ -97,8 +97,9 @@ Built directly into the telemetry command bar for boardroom and investor communi
 *Quantitative Finance • Commercial Yield • Operational Telemetry • AI Architecture*
 
 * **Over 13+ Years of Executive & Operational Leadership:** Extensive leadership across luxury hospitality operation and Travel Agencies.
-* **Academic & Technical Credentials:** Emerging Technologies Certification (Yonsei University) & Data Analytics / Operational Data Engineering.
+  
 * **Main Advisory Hub:** [Strategic Transformation Studio & Executive Advisory](https://kalliopi-papadopoulou.github.io/kalliopi-papadopoulou-strategic-studio/)
+  
 * **Direct Boardroom Consultation:** [Book a 30 or 45-Minute Executive Scoping Session via Google Calendar](https://calendar.google.com/calendar/appointments/schedules/AcZssZ2uiNR5ecqv24anAyZ3ISFoebqW7E7VPFRrJPW_VGWwg6qeIUeyFxFt4TaUu1V-XAp67crWhvXm?gv=true)
 
 ---
