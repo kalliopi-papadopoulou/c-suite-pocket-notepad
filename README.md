@@ -1,4 +1,4 @@
-# THE C-SUITE POCKET NOTEPAD // FINANCE & TELEMETRY
+# THE POCKET C-SUITENOTEPAD // FINANCE & TELEMETRY
 **Quantitative Finance • Commercial Yield • Operational Telemetry**
 
 [![Live Executive HUD](https://img.shields.io/badge/LIVE_HUD-Launch_C--Suite_Pocket_Notepad-c59b27?style=for-the-badge&logo=github)](https://kalliopi-papadopoulou.github.io/c-suite-pocket-notepad/)
@@ -9,7 +9,7 @@
 
 ## Executive Overview
 
-**The C-Suite Pocket Notepad** is an institutional-grade quantitative decision-support system and interactive Business Intelligence (BI) HUD designed for luxury hospitality executives, asset managers, private equity stakeholders, and hospitality technology architects.
+**The Pocket C-SuiteNotepad** is an institutional-grade quantitative decision-support system and interactive Business Intelligence (BI) HUD designed for luxury hospitality executives, asset managers, and private equity stakeholders.
 
 It translates **36 microeconomic and hospitality management frameworks**, live operational telemetry, **USALI (Uniform System of Accounts for the Lodging Industry)** fundamentals, and **4-Statement Financial Accounting** into immediate margin expansion and capital allocation clarity across **USD ($)**, **EUR (€)**, and **CHF (Fr.)**.
 
