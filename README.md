@@ -1,4 +1,4 @@
-# THE POCKET C-SUITENOTEPAD // FINANCE & TELEMETRY
+# THE C-SUITE POCKET NOTEPAD // FINANCE & TELEMETRY
 **Quantitative Finance • Commercial Yield • Operational Telemetry**
 
 [![Live Executive HUD](https://img.shields.io/badge/LIVE_HUD-Launch_C--Suite_Pocket_Notepad-c59b27?style=for-the-badge&logo=github)](https://kalliopi-papadopoulou.github.io/c-suite-pocket-notepad/)
